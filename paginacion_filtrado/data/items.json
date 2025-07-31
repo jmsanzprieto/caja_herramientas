@@ -1,0 +1,79 @@
+[
+  {
+    "id": 1,
+    "name": "Laptop Pro",
+    "category": "Electronics",
+    "status": "available",
+    "price": 1200.00
+  },
+  {
+    "id": 2,
+    "name": "Mechanical Keyboard",
+    "category": "Electronics",
+    "status": "available",
+    "price": 95.50
+  },
+  {
+    "id": 3,
+    "name": "Wireless Mouse",
+    "category": "Electronics",
+    "status": "low_stock",
+    "price": 30.00
+  },
+  {
+    "id": 4,
+    "name": "Python Book",
+    "category": "Books",
+    "status": "available",
+    "price": 45.99
+  },
+  {
+    "id": 5,
+    "name": "Data Science Guide",
+    "category": "Books",
+    "status": "out_of_stock",
+    "price": 60.00
+  },
+  {
+    "id": 6,
+    "name": "Smartwatch X",
+    "category": "Wearables",
+    "status": "available",
+    "price": 250.00
+  },
+  {
+    "id": 7,
+    "name": "Fitness Tracker",
+    "category": "Wearables",
+    "status": "available",
+    "price": 75.00
+  },
+  {
+    "id": 8,
+    "name": "SQL Handbook",
+    "category": "Books",
+    "status": "available",
+    "price": 35.00
+  },
+  {
+    "id": 9,
+    "name": "Webcam HD",
+    "category": "Electronics",
+    "status": "available",
+    "price": 50.00
+  },
+  {
+    "id": 10,
+    "name": "External SSD",
+    "category": "Electronics",
+    "status": "low_stock",
+    "price": 150.00
+  },
+  {
+    "id": 11,
+    "name": "Fiction Novel",
+    "category": "Books",
+    "status": "available",
+    "price": 20.00
+  }
+]
