@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gestión de Archivos FastAPI</title>
+    <style>
+        body { font-family: sans-serif; margin: 2em; }
+        form { margin-bottom: 2em; padding: 1em; border: 1px solid #ccc; border-radius: 5px; }
+        input[type="file"] { margin-bottom: 1em; display: block; }
+        input[type="submit"] { padding: 0.5em 1em; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        input[type="submit"]:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>Subir y Descargar Archivos con FastAPI</h1>
+
+    <h2>Subir un Solo Archivo</h2>
+    <form action="/uploadfile/" enctype="multipart/form-data" method="post">
+        <input name="file" type="file" required>
+        <input type="submit" value="Subir Archivo Único">
+    </form>
+
+    <h2>Subir Múltiples Archivos</h2>
+    <form action="/uploadfiles/" enctype="multipart/form-data" method="post">
+        <input name="files" type="file" multiple required>
+        <input type="submit" value="Subir Múltiples Archivos">
+    </form>
+
+    {% if files_in_uploads %}
+        <h3>Archivos disponibles para descargar:</h3>
+        <ul>
+            {% for filename in files_in_uploads %}
+                <li><a href="/download/{{ filename }}">{{ filename }}</a></li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</body>
+</html>

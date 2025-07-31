@@ -1,0 +1,1900 @@
+/home/jomasanz/.local/lib/python3.10/site-packages/pytest_asyncio/plugin.py:175: DeprecationWarning: You're using an outdated version of pytest. Newer releases of pytest-asyncio will not be compatible with this pytest version. Please update pytest to version 7 or later.
+  warnings.warn(
+============================= test session starts ==============================
+platform linux -- Python 3.10.12, pytest-7.4.0, pluggy-1.6.0
+rootdir: /home/jomasanz/Descargas/VCPymes-API-main
+plugins: asyncio-0.20.0, anyio-4.4.0
+asyncio: mode=strict
+collected 12 items
+
+test/test_api.py .F.FFFFFFFF                                             [ 91%]
+test/test_models.py .                                                    [100%]
+
+=================================== FAILURES ===================================
+_______________________ test_register_company_duplicate ________________________
+
+client = <httpx.AsyncClient object at 0x79e3a2b11bd0>
+
+    @pytest.mark.asyncio
+    async def test_register_company_duplicate(client: AsyncClient):
+        """
+        Prueba que no se puede registrar una empresa con un nombre duplicado.
+        """
+        # Primero, registra una empresa exitosamente
+        _, public_key_pem_1, _ = await register_test_company(client, "DuplicateCompany")
+    
+        # Intentar registrar la misma empresa de nuevo
+        company_name = f"DuplicateCompany-{uuid.uuid4()}" # Usar un nombre único para la primera
+        test_company_data_1 = {
+            "company_name": company_name,
+            "public_key": public_key_pem_1,
+            "contact_email": "duplicate1@example.com"
+        }
+        response_1 = await client.post("/api/v1/register-key", json=test_company_data_1)
+        assert response_1.status_code == 201
+    
+        # Intentar registrar con el mismo nombre
+>       _, public_key_pem_2, _ = generate_rsa_key_pair() # Generar una nueva clave para el intento duplicado
+E       ValueError: not enough values to unpack (expected 3, got 2)
+
+test/test_api.py:64: ValueError
+---------------------------- Captured stdout setup -----------------------------
+[TEST DB] Limpiando y configurando DB para test...
+2025-07-18 12:35:20,556 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:20,556 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:20,556 INFO sqlalchemy.engine.Engine [cached since 0.3691s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:20,564 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:20,564 INFO sqlalchemy.engine.Engine [cached since 0.377s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:20,566 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:20,566 INFO sqlalchemy.engine.Engine [cached since 0.379s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:20,568 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:20,568 INFO sqlalchemy.engine.Engine [cached since 0.3804s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:20,569 INFO sqlalchemy.engine.Engine 
+CREATE TABLE company (
+	company_name VARCHAR(100) NOT NULL, 
+	public_key VARCHAR(4096) NOT NULL, 
+	contact_email VARCHAR(100) NOT NULL, 
+	id UUID NOT NULL, 
+	registered_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	PRIMARY KEY (id)
+)
+
+
+2025-07-18 12:35:20,569 INFO sqlalchemy.engine.Engine [no key 0.00017s] ()
+2025-07-18 12:35:20,578 INFO sqlalchemy.engine.Engine CREATE INDEX ix_company_id ON company (id)
+2025-07-18 12:35:20,578 INFO sqlalchemy.engine.Engine [no key 0.00023s] ()
+2025-07-18 12:35:20,581 INFO sqlalchemy.engine.Engine CREATE UNIQUE INDEX ix_company_company_name ON company (company_name)
+2025-07-18 12:35:20,581 INFO sqlalchemy.engine.Engine [no key 0.00017s] ()
+2025-07-18 12:35:20,585 INFO sqlalchemy.engine.Engine 
+CREATE TABLE credential (
+	issuer_id UUID NOT NULL, 
+	credential_type VARCHAR(50) NOT NULL, 
+	credential_data JSONB, 
+	issued_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	expiration_date TIMESTAMP WITHOUT TIME ZONE, 
+	jwt_hash VARCHAR(256) NOT NULL, 
+	id UUID NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(issuer_id) REFERENCES company (id)
+)
+
+
+2025-07-18 12:35:20,585 INFO sqlalchemy.engine.Engine [no key 0.00018s] ()
+2025-07-18 12:35:20,594 INFO sqlalchemy.engine.Engine CREATE INDEX ix_credential_issuer_id ON credential (issuer_id)
+2025-07-18 12:35:20,594 INFO sqlalchemy.engine.Engine [no key 0.00018s] ()
+2025-07-18 12:35:20,598 INFO sqlalchemy.engine.Engine CREATE INDEX ix_credential_id ON credential (id)
+2025-07-18 12:35:20,598 INFO sqlalchemy.engine.Engine [no key 0.00019s] ()
+2025-07-18 12:35:20,602 INFO sqlalchemy.engine.Engine CREATE UNIQUE INDEX ix_credential_jwt_hash ON credential (jwt_hash)
+2025-07-18 12:35:20,602 INFO sqlalchemy.engine.Engine [no key 0.00017s] ()
+2025-07-18 12:35:20,605 INFO sqlalchemy.engine.Engine COMMIT
+------------------------------ Captured log setup ------------------------------
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 0.3691s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 0.377s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 0.379s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 0.3804s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+CREATE TABLE company (
+	company_name VARCHAR(100) NOT NULL, 
+	public_key VARCHAR(4096) NOT NULL, 
+	contact_email VARCHAR(100) NOT NULL, 
+	id UUID NOT NULL, 
+	registered_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	PRIMARY KEY (id)
+)
+
+
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00017s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE INDEX ix_company_id ON company (id)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00023s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE UNIQUE INDEX ix_company_company_name ON company (company_name)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00017s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+CREATE TABLE credential (
+	issuer_id UUID NOT NULL, 
+	credential_type VARCHAR(50) NOT NULL, 
+	credential_data JSONB, 
+	issued_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	expiration_date TIMESTAMP WITHOUT TIME ZONE, 
+	jwt_hash VARCHAR(256) NOT NULL, 
+	id UUID NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(issuer_id) REFERENCES company (id)
+)
+
+
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00018s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE INDEX ix_credential_issuer_id ON credential (issuer_id)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00018s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE INDEX ix_credential_id ON credential (id)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00019s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE UNIQUE INDEX ix_credential_jwt_hash ON credential (jwt_hash)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00017s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1142 COMMIT
+----------------------------- Captured stdout call -----------------------------
+2025-07-18 12:35:20,701 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:20,703 INFO sqlalchemy.engine.Engine SELECT company.company_name, company.public_key, company.contact_email, company.id, company.registered_at 
+FROM company 
+WHERE company.company_name = $1::VARCHAR
+2025-07-18 12:35:20,703 INFO sqlalchemy.engine.Engine [cached since 0.3293s ago] ('DuplicateCompany-cfc96182-707e-4c65-b3a4-8fdfb6006e13',)
+2025-07-18 12:35:20,709 INFO sqlalchemy.engine.Engine INSERT INTO company (company_name, public_key, contact_email, id, registered_at) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::UUID, $5::TIMESTAMP WITHOUT TIME ZONE)
+2025-07-18 12:35:20,709 INFO sqlalchemy.engine.Engine [cached since 0.3272s ago] ('DuplicateCompany-cfc96182-707e-4c65-b3a4-8fdfb6006e13', '-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAszxs0N/+C/EWR8g3MdDO\nU37GWhqAPiL4V15PEqubAuMSCQRrocVpWrxkDNqov9d+Zhku/Ov9GvD ... (162 characters truncated) ... 9eSeNpETPUJNfIJ98bQBM8wqk1Q8FiEAgcucH2a0CAy4N\n26kIQGsWGteVzzBfj74kbczacMmHhcsBQm2BNHujAeeDFh1ubEfB3wITBAIz5C5W\n6wIDAQAB\n-----END PUBLIC KEY-----\n', 'test-1919090b@example.com', '15497b46-d5ab-4c57-b9d2-e32dcbe06955', datetime.datetime(2025, 7, 18, 10, 35, 20, 708700))
+2025-07-18 12:35:20,711 INFO sqlalchemy.engine.Engine COMMIT
+2025-07-18 12:35:20,755 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:20,755 INFO sqlalchemy.engine.Engine SELECT company.company_name, company.public_key, company.contact_email, company.id, company.registered_at 
+FROM company 
+WHERE company.id = $1::UUID
+2025-07-18 12:35:20,755 INFO sqlalchemy.engine.Engine [cached since 0.3243s ago] ('15497b46-d5ab-4c57-b9d2-e32dcbe06955',)
+2025-07-18 12:35:20,762 INFO sqlalchemy.engine.Engine SELECT company.company_name, company.public_key, company.contact_email, company.id, company.registered_at 
+FROM company 
+WHERE company.company_name = $1::VARCHAR
+2025-07-18 12:35:20,762 INFO sqlalchemy.engine.Engine [cached since 0.3888s ago] ('DuplicateCompany-62775257-a322-460e-94f7-b69e20e4d614',)
+2025-07-18 12:35:20,766 INFO sqlalchemy.engine.Engine INSERT INTO company (company_name, public_key, contact_email, id, registered_at) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::UUID, $5::TIMESTAMP WITHOUT TIME ZONE)
+2025-07-18 12:35:20,766 INFO sqlalchemy.engine.Engine [cached since 0.3846s ago] ('DuplicateCompany-62775257-a322-460e-94f7-b69e20e4d614', '-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAszxs0N/+C/EWR8g3MdDO\nU37GWhqAPiL4V15PEqubAuMSCQRrocVpWrxkDNqov9d+Zhku/Ov9GvD ... (162 characters truncated) ... 9eSeNpETPUJNfIJ98bQBM8wqk1Q8FiEAgcucH2a0CAy4N\n26kIQGsWGteVzzBfj74kbczacMmHhcsBQm2BNHujAeeDFh1ubEfB3wITBAIz5C5W\n6wIDAQAB\n-----END PUBLIC KEY-----\n', 'duplicate1@example.com', '426d755f-c381-4ccf-bff6-91aa800d6518', datetime.datetime(2025, 7, 18, 10, 35, 20, 766179))
+2025-07-18 12:35:20,768 INFO sqlalchemy.engine.Engine COMMIT
+2025-07-18 12:35:20,811 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:20,812 INFO sqlalchemy.engine.Engine SELECT company.company_name, company.public_key, company.contact_email, company.id, company.registered_at 
+FROM company 
+WHERE company.id = $1::UUID
+2025-07-18 12:35:20,812 INFO sqlalchemy.engine.Engine [cached since 0.381s ago] ('426d755f-c381-4ccf-bff6-91aa800d6518',)
+------------------------------ Captured log call -------------------------------
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT company.company_name, company.public_key, company.contact_email, company.id, company.registered_at 
+FROM company 
+WHERE company.company_name = $1::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 0.3293s ago] ('DuplicateCompany-cfc96182-707e-4c65-b3a4-8fdfb6006e13',)
+INFO     sqlalchemy.engine.Engine:base.py:1899 INSERT INTO company (company_name, public_key, contact_email, id, registered_at) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::UUID, $5::TIMESTAMP WITHOUT TIME ZONE)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 0.3272s ago] ('DuplicateCompany-cfc96182-707e-4c65-b3a4-8fdfb6006e13', '-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAszxs0N/+C/EWR8g3MdDO\nU37GWhqAPiL4V15PEqubAuMSCQRrocVpWrxkDNqov9d+Zhku/Ov9GvD ... (162 characters truncated) ... 9eSeNpETPUJNfIJ98bQBM8wqk1Q8FiEAgcucH2a0CAy4N\n26kIQGsWGteVzzBfj74kbczacMmHhcsBQm2BNHujAeeDFh1ubEfB3wITBAIz5C5W\n6wIDAQAB\n-----END PUBLIC KEY-----\n', 'test-1919090b@example.com', '15497b46-d5ab-4c57-b9d2-e32dcbe06955', datetime.datetime(2025, 7, 18, 10, 35, 20, 708700))
+INFO     sqlalchemy.engine.Engine:base.py:1142 COMMIT
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT company.company_name, company.public_key, company.contact_email, company.id, company.registered_at 
+FROM company 
+WHERE company.id = $1::UUID
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 0.3243s ago] ('15497b46-d5ab-4c57-b9d2-e32dcbe06955',)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT company.company_name, company.public_key, company.contact_email, company.id, company.registered_at 
+FROM company 
+WHERE company.company_name = $1::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 0.3888s ago] ('DuplicateCompany-62775257-a322-460e-94f7-b69e20e4d614',)
+INFO     sqlalchemy.engine.Engine:base.py:1899 INSERT INTO company (company_name, public_key, contact_email, id, registered_at) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::UUID, $5::TIMESTAMP WITHOUT TIME ZONE)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 0.3846s ago] ('DuplicateCompany-62775257-a322-460e-94f7-b69e20e4d614', '-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAszxs0N/+C/EWR8g3MdDO\nU37GWhqAPiL4V15PEqubAuMSCQRrocVpWrxkDNqov9d+Zhku/Ov9GvD ... (162 characters truncated) ... 9eSeNpETPUJNfIJ98bQBM8wqk1Q8FiEAgcucH2a0CAy4N\n26kIQGsWGteVzzBfj74kbczacMmHhcsBQm2BNHujAeeDFh1ubEfB3wITBAIz5C5W\n6wIDAQAB\n-----END PUBLIC KEY-----\n', 'duplicate1@example.com', '426d755f-c381-4ccf-bff6-91aa800d6518', datetime.datetime(2025, 7, 18, 10, 35, 20, 766179))
+INFO     sqlalchemy.engine.Engine:base.py:1142 COMMIT
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT company.company_name, company.public_key, company.contact_email, company.id, company.registered_at 
+FROM company 
+WHERE company.id = $1::UUID
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 0.381s ago] ('426d755f-c381-4ccf-bff6-91aa800d6518',)
+--------------------------- Captured stdout teardown ---------------------------
+2025-07-18 12:35:20,920 INFO sqlalchemy.engine.Engine ROLLBACK
+[TEST DB] Eliminando tablas...
+2025-07-18 12:35:20,967 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:20,968 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:20,968 INFO sqlalchemy.engine.Engine [cached since 0.7805s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:20,978 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:20,978 INFO sqlalchemy.engine.Engine [cached since 0.791s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:20,980 INFO sqlalchemy.engine.Engine 
+DROP TABLE credential
+2025-07-18 12:35:20,980 INFO sqlalchemy.engine.Engine [no key 0.00021s] ()
+2025-07-18 12:35:20,988 INFO sqlalchemy.engine.Engine 
+DROP TABLE company
+2025-07-18 12:35:20,988 INFO sqlalchemy.engine.Engine [no key 0.00030s] ()
+2025-07-18 12:35:20,992 INFO sqlalchemy.engine.Engine COMMIT
+---------------------------- Captured log teardown -----------------------------
+INFO     sqlalchemy.engine.Engine:base.py:1125 ROLLBACK
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 0.7805s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 0.791s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+DROP TABLE credential
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00021s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+DROP TABLE company
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00030s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1142 COMMIT
+________________________ test_issue_credential_success _________________________
+
+client = <httpx.AsyncClient object at 0x79e3a2b13ee0>
+
+    @pytest.mark.asyncio
+    async def test_issue_credential_success(client: AsyncClient):
+        """
+        Prueba que se puede emitir una credencial exitosamente para una empresa registrada.
+        """
+        # 1. Registrar una empresa emisora
+        issuer_id, public_key_pem, private_key_obj = await register_test_company(client, "IssuerCompany", "issuer")
+    
+        # 2. Crear un JWT firmado con la clave privada del emisor
+        payload = {
+            "iss": str(issuer_id),
+            "sub": "test_user@example.com",
+            "credential_type": "CourseCompletion",
+            "course_name": "FastAPI Basics",
+            "exp": datetime.now(timezone.utc) + timedelta(days=365) # La credencial expira en 1 año
+        }
+        signed_jwt = jwt.encode(payload, private_key_obj, algorithm="RS256") # Usar el objeto de clave privada
+    
+        # 3. Enviar la solicitud de emisión de credencial a la API
+        credential_data = {
+            "issuer_id": str(issuer_id),
+            "credential_type": "CourseCompletion",
+            "credential_data": {"course": "FastAPI Basics", "grade": "A"},
+            "expiration_date": (datetime.now(timezone.utc) + timedelta(days=365)).isoformat(),
+            "signed_jwt": signed_jwt
+        }
+    
+        # MODIFICADO: Cambiar la ruta para que coincida con el prefijo en main.py
+        response = await client.post("/api/v1/credentials/issue-credential", json=credential_data)
+>       assert response.status_code == 201
+E       assert 404 == 201
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+test/test_api.py:124: AssertionError
+---------------------------- Captured stdout setup -----------------------------
+[TEST DB] Limpiando y configurando DB para test...
+2025-07-18 12:35:21,254 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:21,255 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:21,255 INFO sqlalchemy.engine.Engine [cached since 1.068s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:21,263 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:21,263 INFO sqlalchemy.engine.Engine [cached since 1.075s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:21,264 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:21,264 INFO sqlalchemy.engine.Engine [cached since 1.077s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:21,265 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:21,265 INFO sqlalchemy.engine.Engine [cached since 1.078s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:21,267 INFO sqlalchemy.engine.Engine 
+CREATE TABLE company (
+	company_name VARCHAR(100) NOT NULL, 
+	public_key VARCHAR(4096) NOT NULL, 
+	contact_email VARCHAR(100) NOT NULL, 
+	id UUID NOT NULL, 
+	registered_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	PRIMARY KEY (id)
+)
+
+
+2025-07-18 12:35:21,267 INFO sqlalchemy.engine.Engine [no key 0.00016s] ()
+2025-07-18 12:35:21,276 INFO sqlalchemy.engine.Engine CREATE INDEX ix_company_id ON company (id)
+2025-07-18 12:35:21,276 INFO sqlalchemy.engine.Engine [no key 0.00027s] ()
+2025-07-18 12:35:21,279 INFO sqlalchemy.engine.Engine CREATE UNIQUE INDEX ix_company_company_name ON company (company_name)
+2025-07-18 12:35:21,279 INFO sqlalchemy.engine.Engine [no key 0.00016s] ()
+2025-07-18 12:35:21,283 INFO sqlalchemy.engine.Engine 
+CREATE TABLE credential (
+	issuer_id UUID NOT NULL, 
+	credential_type VARCHAR(50) NOT NULL, 
+	credential_data JSONB, 
+	issued_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	expiration_date TIMESTAMP WITHOUT TIME ZONE, 
+	jwt_hash VARCHAR(256) NOT NULL, 
+	id UUID NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(issuer_id) REFERENCES company (id)
+)
+
+
+2025-07-18 12:35:21,283 INFO sqlalchemy.engine.Engine [no key 0.00018s] ()
+2025-07-18 12:35:21,291 INFO sqlalchemy.engine.Engine CREATE INDEX ix_credential_issuer_id ON credential (issuer_id)
+2025-07-18 12:35:21,291 INFO sqlalchemy.engine.Engine [no key 0.00021s] ()
+2025-07-18 12:35:21,294 INFO sqlalchemy.engine.Engine CREATE INDEX ix_credential_id ON credential (id)
+2025-07-18 12:35:21,294 INFO sqlalchemy.engine.Engine [no key 0.00017s] ()
+2025-07-18 12:35:21,297 INFO sqlalchemy.engine.Engine CREATE UNIQUE INDEX ix_credential_jwt_hash ON credential (jwt_hash)
+2025-07-18 12:35:21,297 INFO sqlalchemy.engine.Engine [no key 0.00017s] ()
+2025-07-18 12:35:21,300 INFO sqlalchemy.engine.Engine COMMIT
+------------------------------ Captured log setup ------------------------------
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 1.068s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 1.075s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 1.077s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 1.078s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+CREATE TABLE company (
+	company_name VARCHAR(100) NOT NULL, 
+	public_key VARCHAR(4096) NOT NULL, 
+	contact_email VARCHAR(100) NOT NULL, 
+	id UUID NOT NULL, 
+	registered_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	PRIMARY KEY (id)
+)
+
+
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00016s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE INDEX ix_company_id ON company (id)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00027s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE UNIQUE INDEX ix_company_company_name ON company (company_name)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00016s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+CREATE TABLE credential (
+	issuer_id UUID NOT NULL, 
+	credential_type VARCHAR(50) NOT NULL, 
+	credential_data JSONB, 
+	issued_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	expiration_date TIMESTAMP WITHOUT TIME ZONE, 
+	jwt_hash VARCHAR(256) NOT NULL, 
+	id UUID NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(issuer_id) REFERENCES company (id)
+)
+
+
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00018s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE INDEX ix_credential_issuer_id ON credential (issuer_id)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00021s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE INDEX ix_credential_id ON credential (id)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00017s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE UNIQUE INDEX ix_credential_jwt_hash ON credential (jwt_hash)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00017s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1142 COMMIT
+----------------------------- Captured stdout call -----------------------------
+2025-07-18 12:35:21,380 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:21,381 INFO sqlalchemy.engine.Engine SELECT company.company_name, company.public_key, company.contact_email, company.id, company.registered_at 
+FROM company 
+WHERE company.company_name = $1::VARCHAR
+2025-07-18 12:35:21,381 INFO sqlalchemy.engine.Engine [cached since 1.008s ago] ('IssuerCompany-f8c9feb6-5d6b-47dc-9024-28a4b3685d17',)
+2025-07-18 12:35:21,388 INFO sqlalchemy.engine.Engine INSERT INTO company (company_name, public_key, contact_email, id, registered_at) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::UUID, $5::TIMESTAMP WITHOUT TIME ZONE)
+2025-07-18 12:35:21,388 INFO sqlalchemy.engine.Engine [cached since 1.006s ago] ('IssuerCompany-f8c9feb6-5d6b-47dc-9024-28a4b3685d17', '-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApC0soHMRLwhpQuct8tj7\nFyffubiuhlxAMWP/XlCPp3lk5H0VjAh+fK1TuaQji/43XYS9lb7+K3l ... (162 characters truncated) ... aasYvTZh4czkpw5dCEpIDHMlj2xuy4xMaKkfigvPcukaB\nZeTC/Dywlz8IrY0G1IL0KIkjPw8jQXHPKN5M9iYIkB4Hhb56kNp5Epzu+YufaE9k\n3QIDAQAB\n-----END PUBLIC KEY-----\n', 'issuer-921157b1@example.com', 'dfb1e35d-d8c3-4650-9f51-935bb8662237', datetime.datetime(2025, 7, 18, 10, 35, 21, 387466))
+2025-07-18 12:35:21,390 INFO sqlalchemy.engine.Engine COMMIT
+2025-07-18 12:35:21,437 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:21,437 INFO sqlalchemy.engine.Engine SELECT company.company_name, company.public_key, company.contact_email, company.id, company.registered_at 
+FROM company 
+WHERE company.id = $1::UUID
+2025-07-18 12:35:21,438 INFO sqlalchemy.engine.Engine [cached since 1.007s ago] ('dfb1e35d-d8c3-4650-9f51-935bb8662237',)
+------------------------------ Captured log call -------------------------------
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT company.company_name, company.public_key, company.contact_email, company.id, company.registered_at 
+FROM company 
+WHERE company.company_name = $1::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 1.008s ago] ('IssuerCompany-f8c9feb6-5d6b-47dc-9024-28a4b3685d17',)
+INFO     sqlalchemy.engine.Engine:base.py:1899 INSERT INTO company (company_name, public_key, contact_email, id, registered_at) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::UUID, $5::TIMESTAMP WITHOUT TIME ZONE)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 1.006s ago] ('IssuerCompany-f8c9feb6-5d6b-47dc-9024-28a4b3685d17', '-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApC0soHMRLwhpQuct8tj7\nFyffubiuhlxAMWP/XlCPp3lk5H0VjAh+fK1TuaQji/43XYS9lb7+K3l ... (162 characters truncated) ... aasYvTZh4czkpw5dCEpIDHMlj2xuy4xMaKkfigvPcukaB\nZeTC/Dywlz8IrY0G1IL0KIkjPw8jQXHPKN5M9iYIkB4Hhb56kNp5Epzu+YufaE9k\n3QIDAQAB\n-----END PUBLIC KEY-----\n', 'issuer-921157b1@example.com', 'dfb1e35d-d8c3-4650-9f51-935bb8662237', datetime.datetime(2025, 7, 18, 10, 35, 21, 387466))
+INFO     sqlalchemy.engine.Engine:base.py:1142 COMMIT
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT company.company_name, company.public_key, company.contact_email, company.id, company.registered_at 
+FROM company 
+WHERE company.id = $1::UUID
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 1.007s ago] ('dfb1e35d-d8c3-4650-9f51-935bb8662237',)
+--------------------------- Captured stdout teardown ---------------------------
+2025-07-18 12:35:21,492 INFO sqlalchemy.engine.Engine ROLLBACK
+[TEST DB] Eliminando tablas...
+2025-07-18 12:35:21,537 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:21,538 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:21,538 INFO sqlalchemy.engine.Engine [cached since 1.351s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:21,546 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:21,546 INFO sqlalchemy.engine.Engine [cached since 1.359s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:21,548 INFO sqlalchemy.engine.Engine 
+DROP TABLE credential
+2025-07-18 12:35:21,548 INFO sqlalchemy.engine.Engine [no key 0.00022s] ()
+2025-07-18 12:35:21,555 INFO sqlalchemy.engine.Engine 
+DROP TABLE company
+2025-07-18 12:35:21,555 INFO sqlalchemy.engine.Engine [no key 0.00018s] ()
+2025-07-18 12:35:21,559 INFO sqlalchemy.engine.Engine COMMIT
+---------------------------- Captured log teardown -----------------------------
+INFO     sqlalchemy.engine.Engine:base.py:1125 ROLLBACK
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 1.351s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 1.359s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+DROP TABLE credential
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00022s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+DROP TABLE company
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00018s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1142 COMMIT
+___________________ test_issue_credential_company_not_found ____________________
+
+client = <httpx.AsyncClient object at 0x79e3a22c56f0>
+
+    @pytest.mark.asyncio
+    async def test_issue_credential_company_not_found(client: AsyncClient):
+        """
+        Prueba que la emisión de una credencial falla si la empresa emisora no existe.
+        """
+        non_existent_issuer_id = uuid.uuid4()
+        # No registramos la empresa
+        private_key_obj, public_key_pem = generate_rsa_key_pair() # Clave privada para firmar el JWT
+    
+        payload = {
+            "iss": str(non_existent_issuer_id),
+            "sub": "test_user@example.com",
+            "credential_type": "CourseCompletion",
+            "course_name": "FastAPI Basics",
+            "exp": datetime.now(timezone.utc) + timedelta(days=365) # La credencial expira en 1 año
+        }
+        signed_jwt = jwt.encode(payload, private_key_obj, algorithm="RS256")
+    
+        credential_data = {
+            "issuer_id": str(non_existent_issuer_id),
+            "credential_type": "CourseCompletion",
+            "credential_data": {"course": "FastAPI Basics", "grade": "A"},
+            "expiration_date": (datetime.now(timezone.utc) + timedelta(days=365)).isoformat(),
+            "signed_jwt": signed_jwt
+        }
+    
+        # MODIFICADO: Cambiar la ruta para que coincida con el prefijo en main.py
+        response = await client.post("/api/v1/credentials/issue-credential", json=credential_data)
+        assert response.status_code == 404 # Esperamos 404 porque la empresa no existe
+>       assert 'Empresa emisora no encontrada' in response.json()["detail"]
+E       AssertionError: assert 'Empresa emisora no encontrada' in 'Not Found'
+
+test/test_api.py:160: AssertionError
+---------------------------- Captured stdout setup -----------------------------
+[TEST DB] Limpiando y configurando DB para test...
+2025-07-18 12:35:21,608 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:21,608 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:21,608 INFO sqlalchemy.engine.Engine [cached since 1.421s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:21,616 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:21,616 INFO sqlalchemy.engine.Engine [cached since 1.429s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:21,617 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:21,618 INFO sqlalchemy.engine.Engine [cached since 1.43s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:21,619 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:21,619 INFO sqlalchemy.engine.Engine [cached since 1.432s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:21,621 INFO sqlalchemy.engine.Engine 
+CREATE TABLE company (
+	company_name VARCHAR(100) NOT NULL, 
+	public_key VARCHAR(4096) NOT NULL, 
+	contact_email VARCHAR(100) NOT NULL, 
+	id UUID NOT NULL, 
+	registered_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	PRIMARY KEY (id)
+)
+
+
+2025-07-18 12:35:21,621 INFO sqlalchemy.engine.Engine [no key 0.00023s] ()
+2025-07-18 12:35:21,630 INFO sqlalchemy.engine.Engine CREATE INDEX ix_company_id ON company (id)
+2025-07-18 12:35:21,630 INFO sqlalchemy.engine.Engine [no key 0.00021s] ()
+2025-07-18 12:35:21,633 INFO sqlalchemy.engine.Engine CREATE UNIQUE INDEX ix_company_company_name ON company (company_name)
+2025-07-18 12:35:21,633 INFO sqlalchemy.engine.Engine [no key 0.00018s] ()
+2025-07-18 12:35:21,637 INFO sqlalchemy.engine.Engine 
+CREATE TABLE credential (
+	issuer_id UUID NOT NULL, 
+	credential_type VARCHAR(50) NOT NULL, 
+	credential_data JSONB, 
+	issued_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	expiration_date TIMESTAMP WITHOUT TIME ZONE, 
+	jwt_hash VARCHAR(256) NOT NULL, 
+	id UUID NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(issuer_id) REFERENCES company (id)
+)
+
+
+2025-07-18 12:35:21,638 INFO sqlalchemy.engine.Engine [no key 0.00018s] ()
+2025-07-18 12:35:21,645 INFO sqlalchemy.engine.Engine CREATE INDEX ix_credential_issuer_id ON credential (issuer_id)
+2025-07-18 12:35:21,645 INFO sqlalchemy.engine.Engine [no key 0.00019s] ()
+2025-07-18 12:35:21,649 INFO sqlalchemy.engine.Engine CREATE INDEX ix_credential_id ON credential (id)
+2025-07-18 12:35:21,649 INFO sqlalchemy.engine.Engine [no key 0.00018s] ()
+2025-07-18 12:35:21,653 INFO sqlalchemy.engine.Engine CREATE UNIQUE INDEX ix_credential_jwt_hash ON credential (jwt_hash)
+2025-07-18 12:35:21,653 INFO sqlalchemy.engine.Engine [no key 0.00021s] ()
+2025-07-18 12:35:21,656 INFO sqlalchemy.engine.Engine COMMIT
+------------------------------ Captured log setup ------------------------------
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 1.421s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 1.429s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 1.43s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 1.432s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+CREATE TABLE company (
+	company_name VARCHAR(100) NOT NULL, 
+	public_key VARCHAR(4096) NOT NULL, 
+	contact_email VARCHAR(100) NOT NULL, 
+	id UUID NOT NULL, 
+	registered_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	PRIMARY KEY (id)
+)
+
+
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00023s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE INDEX ix_company_id ON company (id)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00021s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE UNIQUE INDEX ix_company_company_name ON company (company_name)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00018s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+CREATE TABLE credential (
+	issuer_id UUID NOT NULL, 
+	credential_type VARCHAR(50) NOT NULL, 
+	credential_data JSONB, 
+	issued_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	expiration_date TIMESTAMP WITHOUT TIME ZONE, 
+	jwt_hash VARCHAR(256) NOT NULL, 
+	id UUID NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(issuer_id) REFERENCES company (id)
+)
+
+
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00018s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE INDEX ix_credential_issuer_id ON credential (issuer_id)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00019s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE INDEX ix_credential_id ON credential (id)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00018s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE UNIQUE INDEX ix_credential_jwt_hash ON credential (jwt_hash)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00021s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1142 COMMIT
+--------------------------- Captured stdout teardown ---------------------------
+[TEST DB] Eliminando tablas...
+2025-07-18 12:35:21,860 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:21,860 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:21,860 INFO sqlalchemy.engine.Engine [cached since 1.673s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:21,868 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:21,868 INFO sqlalchemy.engine.Engine [cached since 1.681s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:21,869 INFO sqlalchemy.engine.Engine 
+DROP TABLE credential
+2025-07-18 12:35:21,870 INFO sqlalchemy.engine.Engine [no key 0.00021s] ()
+2025-07-18 12:35:21,877 INFO sqlalchemy.engine.Engine 
+DROP TABLE company
+2025-07-18 12:35:21,878 INFO sqlalchemy.engine.Engine [no key 0.00026s] ()
+2025-07-18 12:35:21,882 INFO sqlalchemy.engine.Engine COMMIT
+---------------------------- Captured log teardown -----------------------------
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 1.673s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 1.681s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+DROP TABLE credential
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00021s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+DROP TABLE company
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00026s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1142 COMMIT
+_____________________ test_issue_credential_duplicate_jwt ______________________
+
+client = <httpx.AsyncClient object at 0x79e3a227ca60>
+
+    @pytest.mark.asyncio
+    async def test_issue_credential_duplicate_jwt(client: AsyncClient):
+        """
+        Prueba que no se puede emitir una credencial si el JWT ya ha sido registrado previamente.
+        """
+        # 1. Registrar una empresa emisora
+        issuer_id, public_key_pem, private_key_obj = await register_test_company(client, "DuplicateJWTCompany")
+    
+        # 2. Crear un JWT
+        payload = {
+            "iss": str(issuer_id),
+            "sub": "duplicate_user@example.com",
+            "credential_type": "DuplicateTest",
+            "exp": datetime.now(timezone.utc) + timedelta(days=1)
+        }
+        signed_jwt = jwt.encode(payload, private_key_obj, algorithm="RS256")
+    
+        credential_data = {
+            "issuer_id": str(issuer_id),
+            "credential_type": "DuplicateTest",
+            "credential_data": {"test": "duplicate"},
+            "expiration_date": (datetime.now(timezone.utc) + timedelta(days=1)).isoformat(),
+            "signed_jwt": signed_jwt
+        }
+    
+        # 3. Emitir la credencial por primera vez
+        # MODIFICADO: Cambiar la ruta para que coincida con el prefijo en main.py
+        response_1 = await client.post("/api/v1/credentials/issue-credential", json=credential_data)
+>       assert response_1.status_code == 201
+E       assert 404 == 201
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+test/test_api.py:191: AssertionError
+---------------------------- Captured stdout setup -----------------------------
+[TEST DB] Limpiando y configurando DB para test...
+2025-07-18 12:35:21,932 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:21,932 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:21,932 INFO sqlalchemy.engine.Engine [cached since 1.745s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:21,940 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:21,940 INFO sqlalchemy.engine.Engine [cached since 1.753s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:21,941 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:21,941 INFO sqlalchemy.engine.Engine [cached since 1.754s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:21,943 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:21,943 INFO sqlalchemy.engine.Engine [cached since 1.755s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:21,944 INFO sqlalchemy.engine.Engine 
+CREATE TABLE company (
+	company_name VARCHAR(100) NOT NULL, 
+	public_key VARCHAR(4096) NOT NULL, 
+	contact_email VARCHAR(100) NOT NULL, 
+	id UUID NOT NULL, 
+	registered_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	PRIMARY KEY (id)
+)
+
+
+2025-07-18 12:35:21,944 INFO sqlalchemy.engine.Engine [no key 0.00018s] ()
+2025-07-18 12:35:21,954 INFO sqlalchemy.engine.Engine CREATE INDEX ix_company_id ON company (id)
+2025-07-18 12:35:21,954 INFO sqlalchemy.engine.Engine [no key 0.00030s] ()
+2025-07-18 12:35:21,957 INFO sqlalchemy.engine.Engine CREATE UNIQUE INDEX ix_company_company_name ON company (company_name)
+2025-07-18 12:35:21,957 INFO sqlalchemy.engine.Engine [no key 0.00020s] ()
+2025-07-18 12:35:21,962 INFO sqlalchemy.engine.Engine 
+CREATE TABLE credential (
+	issuer_id UUID NOT NULL, 
+	credential_type VARCHAR(50) NOT NULL, 
+	credential_data JSONB, 
+	issued_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	expiration_date TIMESTAMP WITHOUT TIME ZONE, 
+	jwt_hash VARCHAR(256) NOT NULL, 
+	id UUID NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(issuer_id) REFERENCES company (id)
+)
+
+
+2025-07-18 12:35:21,962 INFO sqlalchemy.engine.Engine [no key 0.00022s] ()
+2025-07-18 12:35:21,969 INFO sqlalchemy.engine.Engine CREATE INDEX ix_credential_issuer_id ON credential (issuer_id)
+2025-07-18 12:35:21,969 INFO sqlalchemy.engine.Engine [no key 0.00019s] ()
+2025-07-18 12:35:21,972 INFO sqlalchemy.engine.Engine CREATE INDEX ix_credential_id ON credential (id)
+2025-07-18 12:35:21,973 INFO sqlalchemy.engine.Engine [no key 0.00020s] ()
+2025-07-18 12:35:21,976 INFO sqlalchemy.engine.Engine CREATE UNIQUE INDEX ix_credential_jwt_hash ON credential (jwt_hash)
+2025-07-18 12:35:21,976 INFO sqlalchemy.engine.Engine [no key 0.00020s] ()
+2025-07-18 12:35:21,979 INFO sqlalchemy.engine.Engine COMMIT
+------------------------------ Captured log setup ------------------------------
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 1.745s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 1.753s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 1.754s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 1.755s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+CREATE TABLE company (
+	company_name VARCHAR(100) NOT NULL, 
+	public_key VARCHAR(4096) NOT NULL, 
+	contact_email VARCHAR(100) NOT NULL, 
+	id UUID NOT NULL, 
+	registered_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	PRIMARY KEY (id)
+)
+
+
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00018s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE INDEX ix_company_id ON company (id)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00030s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE UNIQUE INDEX ix_company_company_name ON company (company_name)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00020s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+CREATE TABLE credential (
+	issuer_id UUID NOT NULL, 
+	credential_type VARCHAR(50) NOT NULL, 
+	credential_data JSONB, 
+	issued_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	expiration_date TIMESTAMP WITHOUT TIME ZONE, 
+	jwt_hash VARCHAR(256) NOT NULL, 
+	id UUID NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(issuer_id) REFERENCES company (id)
+)
+
+
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00022s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE INDEX ix_credential_issuer_id ON credential (issuer_id)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00019s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE INDEX ix_credential_id ON credential (id)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00020s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE UNIQUE INDEX ix_credential_jwt_hash ON credential (jwt_hash)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00020s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1142 COMMIT
+----------------------------- Captured stdout call -----------------------------
+2025-07-18 12:35:22,083 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:22,084 INFO sqlalchemy.engine.Engine SELECT company.company_name, company.public_key, company.contact_email, company.id, company.registered_at 
+FROM company 
+WHERE company.company_name = $1::VARCHAR
+2025-07-18 12:35:22,084 INFO sqlalchemy.engine.Engine [cached since 1.711s ago] ('DuplicateJWTCompany-cbf087aa-d661-43e1-8578-dbde65d14e25',)
+2025-07-18 12:35:22,090 INFO sqlalchemy.engine.Engine INSERT INTO company (company_name, public_key, contact_email, id, registered_at) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::UUID, $5::TIMESTAMP WITHOUT TIME ZONE)
+2025-07-18 12:35:22,090 INFO sqlalchemy.engine.Engine [cached since 1.708s ago] ('DuplicateJWTCompany-cbf087aa-d661-43e1-8578-dbde65d14e25', '-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAprXpU0b1jCyVlEd/T86g\n2aEwOTlNrRRwdtp1cYK9Uql/2k5aiSTczBkIY+ZFpMU3LiaYVON6BVv ... (162 characters truncated) ... Diyttv2Xe2Js1kQUom8tcShz7SupVN/E6/5oKZhdeD0KA\novw/HPKbfX1L5BRiFHIBRSlTmcEr81JVOq9hdNFUA7BOuOAC8IfRmZAS0nu25Q5f\n3wIDAQAB\n-----END PUBLIC KEY-----\n', 'test-9c8459f8@example.com', '86551775-2036-4445-a77e-1f4b9f5b9e9a', datetime.datetime(2025, 7, 18, 10, 35, 22, 89908))
+2025-07-18 12:35:22,092 INFO sqlalchemy.engine.Engine COMMIT
+2025-07-18 12:35:22,138 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:22,138 INFO sqlalchemy.engine.Engine SELECT company.company_name, company.public_key, company.contact_email, company.id, company.registered_at 
+FROM company 
+WHERE company.id = $1::UUID
+2025-07-18 12:35:22,139 INFO sqlalchemy.engine.Engine [cached since 1.708s ago] ('86551775-2036-4445-a77e-1f4b9f5b9e9a',)
+------------------------------ Captured log call -------------------------------
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT company.company_name, company.public_key, company.contact_email, company.id, company.registered_at 
+FROM company 
+WHERE company.company_name = $1::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 1.711s ago] ('DuplicateJWTCompany-cbf087aa-d661-43e1-8578-dbde65d14e25',)
+INFO     sqlalchemy.engine.Engine:base.py:1899 INSERT INTO company (company_name, public_key, contact_email, id, registered_at) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::UUID, $5::TIMESTAMP WITHOUT TIME ZONE)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 1.708s ago] ('DuplicateJWTCompany-cbf087aa-d661-43e1-8578-dbde65d14e25', '-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAprXpU0b1jCyVlEd/T86g\n2aEwOTlNrRRwdtp1cYK9Uql/2k5aiSTczBkIY+ZFpMU3LiaYVON6BVv ... (162 characters truncated) ... Diyttv2Xe2Js1kQUom8tcShz7SupVN/E6/5oKZhdeD0KA\novw/HPKbfX1L5BRiFHIBRSlTmcEr81JVOq9hdNFUA7BOuOAC8IfRmZAS0nu25Q5f\n3wIDAQAB\n-----END PUBLIC KEY-----\n', 'test-9c8459f8@example.com', '86551775-2036-4445-a77e-1f4b9f5b9e9a', datetime.datetime(2025, 7, 18, 10, 35, 22, 89908))
+INFO     sqlalchemy.engine.Engine:base.py:1142 COMMIT
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT company.company_name, company.public_key, company.contact_email, company.id, company.registered_at 
+FROM company 
+WHERE company.id = $1::UUID
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 1.708s ago] ('86551775-2036-4445-a77e-1f4b9f5b9e9a',)
+--------------------------- Captured stdout teardown ---------------------------
+2025-07-18 12:35:22,190 INFO sqlalchemy.engine.Engine ROLLBACK
+[TEST DB] Eliminando tablas...
+2025-07-18 12:35:22,235 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:22,236 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:22,236 INFO sqlalchemy.engine.Engine [cached since 2.048s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:22,243 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:22,244 INFO sqlalchemy.engine.Engine [cached since 2.056s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:22,245 INFO sqlalchemy.engine.Engine 
+DROP TABLE credential
+2025-07-18 12:35:22,245 INFO sqlalchemy.engine.Engine [no key 0.00017s] ()
+2025-07-18 12:35:22,252 INFO sqlalchemy.engine.Engine 
+DROP TABLE company
+2025-07-18 12:35:22,253 INFO sqlalchemy.engine.Engine [no key 0.00018s] ()
+2025-07-18 12:35:22,257 INFO sqlalchemy.engine.Engine COMMIT
+---------------------------- Captured log teardown -----------------------------
+INFO     sqlalchemy.engine.Engine:base.py:1125 ROLLBACK
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 2.048s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 2.056s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+DROP TABLE credential
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00017s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+DROP TABLE company
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00018s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1142 COMMIT
+________________________ test_verify_credential_success ________________________
+
+client = <httpx.AsyncClient object at 0x79e3a18193c0>
+
+    @pytest.mark.asyncio
+    async def test_verify_credential_success(client: AsyncClient):
+        """
+        Prueba que una credencial emitida exitosamente puede ser verificada.
+        """
+        # 1. Emitir una credencial
+        issuer_id, public_key_pem, private_key_obj = await register_test_company(client, "VerifyCompany")
+        payload = {
+            "iss": str(issuer_id),
+            "sub": "verify_user@example.com",
+            "credential_type": "VerificationTest",
+            "exp": datetime.now(timezone.utc) + timedelta(days=7)
+        }
+        signed_jwt = jwt.encode(payload, private_key_obj, algorithm="RS256")
+    
+        credential_data = {
+            "issuer_id": str(issuer_id),
+            "credential_type": "VerificationTest",
+            "credential_data": {"status": "completed"},
+            "expiration_date": (datetime.now(timezone.utc) + timedelta(days=7)).isoformat(),
+            "signed_jwt": signed_jwt
+        }
+    
+        # MODIFICADO: Cambiar la ruta para que coincida con el prefijo en main.py
+        issue_response = await client.post("/api/v1/credentials/issue-credential", json=credential_data)
+>       assert issue_response.status_code == 201
+E       assert 404 == 201
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+test/test_api.py:227: AssertionError
+---------------------------- Captured stdout setup -----------------------------
+[TEST DB] Limpiando y configurando DB para test...
+2025-07-18 12:35:22,305 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:22,305 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:22,305 INFO sqlalchemy.engine.Engine [cached since 2.118s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:22,313 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:22,314 INFO sqlalchemy.engine.Engine [cached since 2.126s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:22,315 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:22,315 INFO sqlalchemy.engine.Engine [cached since 2.128s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:22,316 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:22,317 INFO sqlalchemy.engine.Engine [cached since 2.129s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:22,319 INFO sqlalchemy.engine.Engine 
+CREATE TABLE company (
+	company_name VARCHAR(100) NOT NULL, 
+	public_key VARCHAR(4096) NOT NULL, 
+	contact_email VARCHAR(100) NOT NULL, 
+	id UUID NOT NULL, 
+	registered_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	PRIMARY KEY (id)
+)
+
+
+2025-07-18 12:35:22,319 INFO sqlalchemy.engine.Engine [no key 0.00038s] ()
+2025-07-18 12:35:22,329 INFO sqlalchemy.engine.Engine CREATE INDEX ix_company_id ON company (id)
+2025-07-18 12:35:22,329 INFO sqlalchemy.engine.Engine [no key 0.00035s] ()
+2025-07-18 12:35:22,332 INFO sqlalchemy.engine.Engine CREATE UNIQUE INDEX ix_company_company_name ON company (company_name)
+2025-07-18 12:35:22,333 INFO sqlalchemy.engine.Engine [no key 0.00021s] ()
+2025-07-18 12:35:22,337 INFO sqlalchemy.engine.Engine 
+CREATE TABLE credential (
+	issuer_id UUID NOT NULL, 
+	credential_type VARCHAR(50) NOT NULL, 
+	credential_data JSONB, 
+	issued_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	expiration_date TIMESTAMP WITHOUT TIME ZONE, 
+	jwt_hash VARCHAR(256) NOT NULL, 
+	id UUID NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(issuer_id) REFERENCES company (id)
+)
+
+
+2025-07-18 12:35:22,337 INFO sqlalchemy.engine.Engine [no key 0.00032s] ()
+2025-07-18 12:35:22,344 INFO sqlalchemy.engine.Engine CREATE INDEX ix_credential_issuer_id ON credential (issuer_id)
+2025-07-18 12:35:22,345 INFO sqlalchemy.engine.Engine [no key 0.00019s] ()
+2025-07-18 12:35:22,347 INFO sqlalchemy.engine.Engine CREATE INDEX ix_credential_id ON credential (id)
+2025-07-18 12:35:22,348 INFO sqlalchemy.engine.Engine [no key 0.00018s] ()
+2025-07-18 12:35:22,351 INFO sqlalchemy.engine.Engine CREATE UNIQUE INDEX ix_credential_jwt_hash ON credential (jwt_hash)
+2025-07-18 12:35:22,351 INFO sqlalchemy.engine.Engine [no key 0.00017s] ()
+2025-07-18 12:35:22,354 INFO sqlalchemy.engine.Engine COMMIT
+------------------------------ Captured log setup ------------------------------
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 2.118s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 2.126s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 2.128s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 2.129s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+CREATE TABLE company (
+	company_name VARCHAR(100) NOT NULL, 
+	public_key VARCHAR(4096) NOT NULL, 
+	contact_email VARCHAR(100) NOT NULL, 
+	id UUID NOT NULL, 
+	registered_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	PRIMARY KEY (id)
+)
+
+
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00038s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE INDEX ix_company_id ON company (id)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00035s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE UNIQUE INDEX ix_company_company_name ON company (company_name)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00021s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+CREATE TABLE credential (
+	issuer_id UUID NOT NULL, 
+	credential_type VARCHAR(50) NOT NULL, 
+	credential_data JSONB, 
+	issued_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	expiration_date TIMESTAMP WITHOUT TIME ZONE, 
+	jwt_hash VARCHAR(256) NOT NULL, 
+	id UUID NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(issuer_id) REFERENCES company (id)
+)
+
+
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00032s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE INDEX ix_credential_issuer_id ON credential (issuer_id)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00019s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE INDEX ix_credential_id ON credential (id)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00018s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE UNIQUE INDEX ix_credential_jwt_hash ON credential (jwt_hash)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00017s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1142 COMMIT
+----------------------------- Captured stdout call -----------------------------
+2025-07-18 12:35:22,493 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:22,493 INFO sqlalchemy.engine.Engine SELECT company.company_name, company.public_key, company.contact_email, company.id, company.registered_at 
+FROM company 
+WHERE company.company_name = $1::VARCHAR
+2025-07-18 12:35:22,494 INFO sqlalchemy.engine.Engine [cached since 2.12s ago] ('VerifyCompany-83873774-0776-429a-9059-f8b9b8807b58',)
+2025-07-18 12:35:22,500 INFO sqlalchemy.engine.Engine INSERT INTO company (company_name, public_key, contact_email, id, registered_at) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::UUID, $5::TIMESTAMP WITHOUT TIME ZONE)
+2025-07-18 12:35:22,500 INFO sqlalchemy.engine.Engine [cached since 2.118s ago] ('VerifyCompany-83873774-0776-429a-9059-f8b9b8807b58', '-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvGc7mvxRVtDzCYTD6gPe\nFMDLVWzkB6P43HtvjJE5CVnHBOnOrbIsUc6gCXTfrH/kNu/P4StKFpv ... (162 characters truncated) ... xgqWFDYncsCA7bkDZc0RNz4ymjlRCzyTer1YmQ09WkQUL\nVWrBTVrKMglw3Ebe4jLllvGsm2+T/oZ2ZTMXuUDt65O7fK6xzd0k/uH+TfF1RlpF\nLQIDAQAB\n-----END PUBLIC KEY-----\n', 'test-b923ba2f@example.com', '9ce8007b-fed9-408c-9c69-c0db563a774c', datetime.datetime(2025, 7, 18, 10, 35, 22, 499865))
+2025-07-18 12:35:22,503 INFO sqlalchemy.engine.Engine COMMIT
+2025-07-18 12:35:22,547 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:22,548 INFO sqlalchemy.engine.Engine SELECT company.company_name, company.public_key, company.contact_email, company.id, company.registered_at 
+FROM company 
+WHERE company.id = $1::UUID
+2025-07-18 12:35:22,548 INFO sqlalchemy.engine.Engine [cached since 2.117s ago] ('9ce8007b-fed9-408c-9c69-c0db563a774c',)
+------------------------------ Captured log call -------------------------------
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT company.company_name, company.public_key, company.contact_email, company.id, company.registered_at 
+FROM company 
+WHERE company.company_name = $1::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 2.12s ago] ('VerifyCompany-83873774-0776-429a-9059-f8b9b8807b58',)
+INFO     sqlalchemy.engine.Engine:base.py:1899 INSERT INTO company (company_name, public_key, contact_email, id, registered_at) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::UUID, $5::TIMESTAMP WITHOUT TIME ZONE)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 2.118s ago] ('VerifyCompany-83873774-0776-429a-9059-f8b9b8807b58', '-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvGc7mvxRVtDzCYTD6gPe\nFMDLVWzkB6P43HtvjJE5CVnHBOnOrbIsUc6gCXTfrH/kNu/P4StKFpv ... (162 characters truncated) ... xgqWFDYncsCA7bkDZc0RNz4ymjlRCzyTer1YmQ09WkQUL\nVWrBTVrKMglw3Ebe4jLllvGsm2+T/oZ2ZTMXuUDt65O7fK6xzd0k/uH+TfF1RlpF\nLQIDAQAB\n-----END PUBLIC KEY-----\n', 'test-b923ba2f@example.com', '9ce8007b-fed9-408c-9c69-c0db563a774c', datetime.datetime(2025, 7, 18, 10, 35, 22, 499865))
+INFO     sqlalchemy.engine.Engine:base.py:1142 COMMIT
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT company.company_name, company.public_key, company.contact_email, company.id, company.registered_at 
+FROM company 
+WHERE company.id = $1::UUID
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 2.117s ago] ('9ce8007b-fed9-408c-9c69-c0db563a774c',)
+--------------------------- Captured stdout teardown ---------------------------
+2025-07-18 12:35:22,601 INFO sqlalchemy.engine.Engine ROLLBACK
+[TEST DB] Eliminando tablas...
+2025-07-18 12:35:22,646 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:22,646 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:22,647 INFO sqlalchemy.engine.Engine [cached since 2.459s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:22,655 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:22,655 INFO sqlalchemy.engine.Engine [cached since 2.467s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:22,656 INFO sqlalchemy.engine.Engine 
+DROP TABLE credential
+2025-07-18 12:35:22,656 INFO sqlalchemy.engine.Engine [no key 0.00021s] ()
+2025-07-18 12:35:22,664 INFO sqlalchemy.engine.Engine 
+DROP TABLE company
+2025-07-18 12:35:22,664 INFO sqlalchemy.engine.Engine [no key 0.00022s] ()
+2025-07-18 12:35:22,668 INFO sqlalchemy.engine.Engine COMMIT
+---------------------------- Captured log teardown -----------------------------
+INFO     sqlalchemy.engine.Engine:base.py:1125 ROLLBACK
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 2.459s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 2.467s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+DROP TABLE credential
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00021s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+DROP TABLE company
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00022s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1142 COMMIT
+___________________ test_verify_credential_invalid_signature ___________________
+
+client = <httpx.AsyncClient object at 0x79e3a19e87c0>
+
+    @pytest.mark.asyncio
+    async def test_verify_credential_invalid_signature(client: AsyncClient):
+        """
+        Prueba que la verificación falla si la firma del JWT es inválida.
+        """
+        # 1. Registrar una empresa (válida)
+        issuer_id, _, _ = await register_test_company(client, "InvalidSignatureCompany")
+    
+        # 2. Generar una CLAVE PRIVADA DIFERENTE para firmar un JWT inválido
+        _, private_key_obj_evil = generate_rsa_key_pair()
+    
+        # Crear un JWT firmado con la clave 'evil'
+        payload = {
+            "iss": str(issuer_id), # Issuer_id válido, pero firmado con clave incorrecta
+            "sub": "attacker@example.com",
+            "credential_type": "FraudAttempt",
+            "exp": datetime.now(timezone.utc) + timedelta(minutes=5)
+        }
+>       signed_jwt_invalid = jwt.encode(payload, private_key_obj_evil, algorithm="RS256")
+
+test/test_api.py:258: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../.local/lib/python3.10/site-packages/jwt/api_jwt.py:73: in encode
+    return api_jws.encode(
+../../.local/lib/python3.10/site-packages/jwt/api_jws.py:161: in encode
+    signature = alg_obj.sign(signing_input, key)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <jwt.algorithms.RSAAlgorithm object at 0x79e3a2dd0f10>
+msg = b'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJiZDdjYjhmNi05M2U5LTQ3NjAtYWIzNC1jNDNjNTdmMTY3NzgiLCJzdWIiOiJhdHRhY2tlckBleGFtcGxlLmNvbSIsImNyZWRlbnRpYWxfdHlwZSI6IkZyYXVkQXR0ZW1wdCIsImV4cCI6MTc1MjgzNTIyMn0'
+key = <cryptography.hazmat.bindings._rust.openssl.rsa.RSAPublicKey object at 0x79e3a2c29070>
+
+    def sign(self, msg: bytes, key: RSAPrivateKey) -> bytes:
+>       return key.sign(msg, padding.PKCS1v15(), self.hash_alg())
+E       AttributeError: 'cryptography.hazmat.bindings._rust.openssl.rsa.RSA' object has no attribute 'sign'
+
+../../.local/lib/python3.10/site-packages/jwt/algorithms.py:479: AttributeError
+---------------------------- Captured stdout setup -----------------------------
+[TEST DB] Limpiando y configurando DB para test...
+2025-07-18 12:35:22,716 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:22,716 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:22,717 INFO sqlalchemy.engine.Engine [cached since 2.529s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:22,725 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:22,725 INFO sqlalchemy.engine.Engine [cached since 2.537s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:22,726 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:22,727 INFO sqlalchemy.engine.Engine [cached since 2.539s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:22,728 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:22,728 INFO sqlalchemy.engine.Engine [cached since 2.541s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:22,730 INFO sqlalchemy.engine.Engine 
+CREATE TABLE company (
+	company_name VARCHAR(100) NOT NULL, 
+	public_key VARCHAR(4096) NOT NULL, 
+	contact_email VARCHAR(100) NOT NULL, 
+	id UUID NOT NULL, 
+	registered_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	PRIMARY KEY (id)
+)
+
+
+2025-07-18 12:35:22,730 INFO sqlalchemy.engine.Engine [no key 0.00019s] ()
+2025-07-18 12:35:22,739 INFO sqlalchemy.engine.Engine CREATE INDEX ix_company_id ON company (id)
+2025-07-18 12:35:22,740 INFO sqlalchemy.engine.Engine [no key 0.00021s] ()
+2025-07-18 12:35:22,743 INFO sqlalchemy.engine.Engine CREATE UNIQUE INDEX ix_company_company_name ON company (company_name)
+2025-07-18 12:35:22,743 INFO sqlalchemy.engine.Engine [no key 0.00032s] ()
+2025-07-18 12:35:22,747 INFO sqlalchemy.engine.Engine 
+CREATE TABLE credential (
+	issuer_id UUID NOT NULL, 
+	credential_type VARCHAR(50) NOT NULL, 
+	credential_data JSONB, 
+	issued_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	expiration_date TIMESTAMP WITHOUT TIME ZONE, 
+	jwt_hash VARCHAR(256) NOT NULL, 
+	id UUID NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(issuer_id) REFERENCES company (id)
+)
+
+
+2025-07-18 12:35:22,747 INFO sqlalchemy.engine.Engine [no key 0.00018s] ()
+2025-07-18 12:35:22,755 INFO sqlalchemy.engine.Engine CREATE INDEX ix_credential_issuer_id ON credential (issuer_id)
+2025-07-18 12:35:22,755 INFO sqlalchemy.engine.Engine [no key 0.00019s] ()
+2025-07-18 12:35:22,759 INFO sqlalchemy.engine.Engine CREATE INDEX ix_credential_id ON credential (id)
+2025-07-18 12:35:22,759 INFO sqlalchemy.engine.Engine [no key 0.00017s] ()
+2025-07-18 12:35:22,763 INFO sqlalchemy.engine.Engine CREATE UNIQUE INDEX ix_credential_jwt_hash ON credential (jwt_hash)
+2025-07-18 12:35:22,763 INFO sqlalchemy.engine.Engine [no key 0.00018s] ()
+2025-07-18 12:35:22,767 INFO sqlalchemy.engine.Engine COMMIT
+------------------------------ Captured log setup ------------------------------
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 2.529s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 2.537s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 2.539s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 2.541s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+CREATE TABLE company (
+	company_name VARCHAR(100) NOT NULL, 
+	public_key VARCHAR(4096) NOT NULL, 
+	contact_email VARCHAR(100) NOT NULL, 
+	id UUID NOT NULL, 
+	registered_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	PRIMARY KEY (id)
+)
+
+
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00019s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE INDEX ix_company_id ON company (id)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00021s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE UNIQUE INDEX ix_company_company_name ON company (company_name)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00032s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+CREATE TABLE credential (
+	issuer_id UUID NOT NULL, 
+	credential_type VARCHAR(50) NOT NULL, 
+	credential_data JSONB, 
+	issued_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	expiration_date TIMESTAMP WITHOUT TIME ZONE, 
+	jwt_hash VARCHAR(256) NOT NULL, 
+	id UUID NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(issuer_id) REFERENCES company (id)
+)
+
+
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00018s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE INDEX ix_credential_issuer_id ON credential (issuer_id)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00019s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE INDEX ix_credential_id ON credential (id)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00017s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE UNIQUE INDEX ix_credential_jwt_hash ON credential (jwt_hash)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00018s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1142 COMMIT
+----------------------------- Captured stdout call -----------------------------
+2025-07-18 12:35:22,866 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:22,866 INFO sqlalchemy.engine.Engine SELECT company.company_name, company.public_key, company.contact_email, company.id, company.registered_at 
+FROM company 
+WHERE company.company_name = $1::VARCHAR
+2025-07-18 12:35:22,867 INFO sqlalchemy.engine.Engine [cached since 2.493s ago] ('InvalidSignatureCompany-d92f7530-2c45-4391-8c3a-036a335c05aa',)
+2025-07-18 12:35:22,873 INFO sqlalchemy.engine.Engine INSERT INTO company (company_name, public_key, contact_email, id, registered_at) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::UUID, $5::TIMESTAMP WITHOUT TIME ZONE)
+2025-07-18 12:35:22,873 INFO sqlalchemy.engine.Engine [cached since 2.491s ago] ('InvalidSignatureCompany-d92f7530-2c45-4391-8c3a-036a335c05aa', '-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1pHhlJLDsDUL9Wxg2IQa\nxtgsgpOEvuS2rY1WZCoOwtPj1cD1G8Pf6vpWajmzpib64udp5FMT2Mt ... (162 characters truncated) ... PrYIW+BeuXPv2HUOp2Iw6nkoIpfUJ1hEnak54k4M4sVvT\nGD8jczltkbm8oe3ZDEwKet2CS3wzNOiLDRpxVdof89LGEpIXuRBZfY86OyCo0l60\n2QIDAQAB\n-----END PUBLIC KEY-----\n', 'test-27053b72@example.com', 'bd7cb8f6-93e9-4760-ab34-c43c57f16778', datetime.datetime(2025, 7, 18, 10, 35, 22, 872757))
+2025-07-18 12:35:22,875 INFO sqlalchemy.engine.Engine COMMIT
+2025-07-18 12:35:22,920 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:22,921 INFO sqlalchemy.engine.Engine SELECT company.company_name, company.public_key, company.contact_email, company.id, company.registered_at 
+FROM company 
+WHERE company.id = $1::UUID
+2025-07-18 12:35:22,921 INFO sqlalchemy.engine.Engine [cached since 2.49s ago] ('bd7cb8f6-93e9-4760-ab34-c43c57f16778',)
+------------------------------ Captured log call -------------------------------
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT company.company_name, company.public_key, company.contact_email, company.id, company.registered_at 
+FROM company 
+WHERE company.company_name = $1::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 2.493s ago] ('InvalidSignatureCompany-d92f7530-2c45-4391-8c3a-036a335c05aa',)
+INFO     sqlalchemy.engine.Engine:base.py:1899 INSERT INTO company (company_name, public_key, contact_email, id, registered_at) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::UUID, $5::TIMESTAMP WITHOUT TIME ZONE)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 2.491s ago] ('InvalidSignatureCompany-d92f7530-2c45-4391-8c3a-036a335c05aa', '-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1pHhlJLDsDUL9Wxg2IQa\nxtgsgpOEvuS2rY1WZCoOwtPj1cD1G8Pf6vpWajmzpib64udp5FMT2Mt ... (162 characters truncated) ... PrYIW+BeuXPv2HUOp2Iw6nkoIpfUJ1hEnak54k4M4sVvT\nGD8jczltkbm8oe3ZDEwKet2CS3wzNOiLDRpxVdof89LGEpIXuRBZfY86OyCo0l60\n2QIDAQAB\n-----END PUBLIC KEY-----\n', 'test-27053b72@example.com', 'bd7cb8f6-93e9-4760-ab34-c43c57f16778', datetime.datetime(2025, 7, 18, 10, 35, 22, 872757))
+INFO     sqlalchemy.engine.Engine:base.py:1142 COMMIT
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT company.company_name, company.public_key, company.contact_email, company.id, company.registered_at 
+FROM company 
+WHERE company.id = $1::UUID
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 2.49s ago] ('bd7cb8f6-93e9-4760-ab34-c43c57f16778',)
+--------------------------- Captured stdout teardown ---------------------------
+2025-07-18 12:35:22,987 INFO sqlalchemy.engine.Engine ROLLBACK
+[TEST DB] Eliminando tablas...
+2025-07-18 12:35:23,033 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:23,033 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:23,034 INFO sqlalchemy.engine.Engine [cached since 2.846s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:23,042 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:23,042 INFO sqlalchemy.engine.Engine [cached since 2.855s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:23,043 INFO sqlalchemy.engine.Engine 
+DROP TABLE credential
+2025-07-18 12:35:23,044 INFO sqlalchemy.engine.Engine [no key 0.00018s] ()
+2025-07-18 12:35:23,051 INFO sqlalchemy.engine.Engine 
+DROP TABLE company
+2025-07-18 12:35:23,051 INFO sqlalchemy.engine.Engine [no key 0.00018s] ()
+2025-07-18 12:35:23,055 INFO sqlalchemy.engine.Engine COMMIT
+---------------------------- Captured log teardown -----------------------------
+INFO     sqlalchemy.engine.Engine:base.py:1125 ROLLBACK
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 2.846s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 2.855s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+DROP TABLE credential
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00018s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+DROP TABLE company
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00018s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1142 COMMIT
+________________________ test_verify_credential_expired ________________________
+
+client = <httpx.AsyncClient object at 0x79e3a19ea800>
+
+    @pytest.mark.asyncio
+    async def test_verify_credential_expired(client: AsyncClient):
+        """
+        Prueba que la verificación falla si la credencial ha expirado.
+        """
+        # 1. Registrar una empresa
+        issuer_id, public_key_pem, private_key_obj = await register_test_company(client, "ExpiredCredentialCompany")
+    
+        # 2. Crear un JWT con fecha de expiración en el pasado
+        payload = {
+            "iss": str(issuer_id),
+            "sub": "expired_user@example.com",
+            "credential_type": "ExpiredTest",
+            "exp": datetime.now(timezone.utc) - timedelta(minutes=5) # Expirado hace 5 minutos
+        }
+        signed_jwt_expired = jwt.encode(payload, private_key_obj, algorithm="RS256")
+    
+        verify_data = {"signed_jwt": signed_jwt_expired}
+        # MODIFICADO: Cambiar la ruta para que coincida con el prefijo en main.py
+        response = await client.post("/api/v1/credentials/verify-credential", json=verify_data)
+    
+>       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+test/test_api.py:290: AssertionError
+---------------------------- Captured stdout setup -----------------------------
+[TEST DB] Limpiando y configurando DB para test...
+2025-07-18 12:35:23,105 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:23,105 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:23,105 INFO sqlalchemy.engine.Engine [cached since 2.918s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:23,113 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:23,113 INFO sqlalchemy.engine.Engine [cached since 2.926s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:23,115 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:23,115 INFO sqlalchemy.engine.Engine [cached since 2.928s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:23,116 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:23,116 INFO sqlalchemy.engine.Engine [cached since 2.929s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:23,118 INFO sqlalchemy.engine.Engine 
+CREATE TABLE company (
+	company_name VARCHAR(100) NOT NULL, 
+	public_key VARCHAR(4096) NOT NULL, 
+	contact_email VARCHAR(100) NOT NULL, 
+	id UUID NOT NULL, 
+	registered_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	PRIMARY KEY (id)
+)
+
+
+2025-07-18 12:35:23,118 INFO sqlalchemy.engine.Engine [no key 0.00018s] ()
+2025-07-18 12:35:23,127 INFO sqlalchemy.engine.Engine CREATE INDEX ix_company_id ON company (id)
+2025-07-18 12:35:23,127 INFO sqlalchemy.engine.Engine [no key 0.00020s] ()
+2025-07-18 12:35:23,130 INFO sqlalchemy.engine.Engine CREATE UNIQUE INDEX ix_company_company_name ON company (company_name)
+2025-07-18 12:35:23,131 INFO sqlalchemy.engine.Engine [no key 0.00017s] ()
+2025-07-18 12:35:23,135 INFO sqlalchemy.engine.Engine 
+CREATE TABLE credential (
+	issuer_id UUID NOT NULL, 
+	credential_type VARCHAR(50) NOT NULL, 
+	credential_data JSONB, 
+	issued_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	expiration_date TIMESTAMP WITHOUT TIME ZONE, 
+	jwt_hash VARCHAR(256) NOT NULL, 
+	id UUID NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(issuer_id) REFERENCES company (id)
+)
+
+
+2025-07-18 12:35:23,135 INFO sqlalchemy.engine.Engine [no key 0.00018s] ()
+2025-07-18 12:35:23,143 INFO sqlalchemy.engine.Engine CREATE INDEX ix_credential_issuer_id ON credential (issuer_id)
+2025-07-18 12:35:23,143 INFO sqlalchemy.engine.Engine [no key 0.00018s] ()
+2025-07-18 12:35:23,146 INFO sqlalchemy.engine.Engine CREATE INDEX ix_credential_id ON credential (id)
+2025-07-18 12:35:23,146 INFO sqlalchemy.engine.Engine [no key 0.00018s] ()
+2025-07-18 12:35:23,149 INFO sqlalchemy.engine.Engine CREATE UNIQUE INDEX ix_credential_jwt_hash ON credential (jwt_hash)
+2025-07-18 12:35:23,149 INFO sqlalchemy.engine.Engine [no key 0.00018s] ()
+2025-07-18 12:35:23,152 INFO sqlalchemy.engine.Engine COMMIT
+------------------------------ Captured log setup ------------------------------
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 2.918s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 2.926s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 2.928s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 2.929s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+CREATE TABLE company (
+	company_name VARCHAR(100) NOT NULL, 
+	public_key VARCHAR(4096) NOT NULL, 
+	contact_email VARCHAR(100) NOT NULL, 
+	id UUID NOT NULL, 
+	registered_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	PRIMARY KEY (id)
+)
+
+
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00018s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE INDEX ix_company_id ON company (id)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00020s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE UNIQUE INDEX ix_company_company_name ON company (company_name)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00017s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+CREATE TABLE credential (
+	issuer_id UUID NOT NULL, 
+	credential_type VARCHAR(50) NOT NULL, 
+	credential_data JSONB, 
+	issued_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	expiration_date TIMESTAMP WITHOUT TIME ZONE, 
+	jwt_hash VARCHAR(256) NOT NULL, 
+	id UUID NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(issuer_id) REFERENCES company (id)
+)
+
+
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00018s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE INDEX ix_credential_issuer_id ON credential (issuer_id)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00018s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE INDEX ix_credential_id ON credential (id)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00018s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE UNIQUE INDEX ix_credential_jwt_hash ON credential (jwt_hash)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00018s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1142 COMMIT
+----------------------------- Captured stdout call -----------------------------
+2025-07-18 12:35:23,267 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:23,268 INFO sqlalchemy.engine.Engine SELECT company.company_name, company.public_key, company.contact_email, company.id, company.registered_at 
+FROM company 
+WHERE company.company_name = $1::VARCHAR
+2025-07-18 12:35:23,268 INFO sqlalchemy.engine.Engine [cached since 2.894s ago] ('ExpiredCredentialCompany-7b3b0e1b-becc-47b5-b25f-c38390df8573',)
+2025-07-18 12:35:23,274 INFO sqlalchemy.engine.Engine INSERT INTO company (company_name, public_key, contact_email, id, registered_at) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::UUID, $5::TIMESTAMP WITHOUT TIME ZONE)
+2025-07-18 12:35:23,274 INFO sqlalchemy.engine.Engine [cached since 2.892s ago] ('ExpiredCredentialCompany-7b3b0e1b-becc-47b5-b25f-c38390df8573', '-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq3kBNJAYKDqU2UjP7qdm\nqMC74rM1d/5i2v0+tynaol/Zz5xwGhDWPbrG4UdZKyPbEe+ARu0htiI ... (162 characters truncated) ... HAQcxd3OHx49j2XrxVqCDemQQXZKzMKkhNLdi/NC9wxUi\nevBITN0uJCZKuuhCWSeSmrnjG4sLRvxr1CH/H7LwCuhSJKHKkdlHTVP9f9j7uKFP\nBQIDAQAB\n-----END PUBLIC KEY-----\n', 'test-0a588095@example.com', '6297913c-2282-4904-8e3d-315bbd7a3edd', datetime.datetime(2025, 7, 18, 10, 35, 23, 273805))
+2025-07-18 12:35:23,276 INFO sqlalchemy.engine.Engine COMMIT
+2025-07-18 12:35:23,321 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:23,322 INFO sqlalchemy.engine.Engine SELECT company.company_name, company.public_key, company.contact_email, company.id, company.registered_at 
+FROM company 
+WHERE company.id = $1::UUID
+2025-07-18 12:35:23,322 INFO sqlalchemy.engine.Engine [cached since 2.891s ago] ('6297913c-2282-4904-8e3d-315bbd7a3edd',)
+------------------------------ Captured log call -------------------------------
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT company.company_name, company.public_key, company.contact_email, company.id, company.registered_at 
+FROM company 
+WHERE company.company_name = $1::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 2.894s ago] ('ExpiredCredentialCompany-7b3b0e1b-becc-47b5-b25f-c38390df8573',)
+INFO     sqlalchemy.engine.Engine:base.py:1899 INSERT INTO company (company_name, public_key, contact_email, id, registered_at) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::UUID, $5::TIMESTAMP WITHOUT TIME ZONE)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 2.892s ago] ('ExpiredCredentialCompany-7b3b0e1b-becc-47b5-b25f-c38390df8573', '-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq3kBNJAYKDqU2UjP7qdm\nqMC74rM1d/5i2v0+tynaol/Zz5xwGhDWPbrG4UdZKyPbEe+ARu0htiI ... (162 characters truncated) ... HAQcxd3OHx49j2XrxVqCDemQQXZKzMKkhNLdi/NC9wxUi\nevBITN0uJCZKuuhCWSeSmrnjG4sLRvxr1CH/H7LwCuhSJKHKkdlHTVP9f9j7uKFP\nBQIDAQAB\n-----END PUBLIC KEY-----\n', 'test-0a588095@example.com', '6297913c-2282-4904-8e3d-315bbd7a3edd', datetime.datetime(2025, 7, 18, 10, 35, 23, 273805))
+INFO     sqlalchemy.engine.Engine:base.py:1142 COMMIT
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT company.company_name, company.public_key, company.contact_email, company.id, company.registered_at 
+FROM company 
+WHERE company.id = $1::UUID
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 2.891s ago] ('6297913c-2282-4904-8e3d-315bbd7a3edd',)
+--------------------------- Captured stdout teardown ---------------------------
+2025-07-18 12:35:23,374 INFO sqlalchemy.engine.Engine ROLLBACK
+[TEST DB] Eliminando tablas...
+2025-07-18 12:35:23,418 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:23,419 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:23,419 INFO sqlalchemy.engine.Engine [cached since 3.232s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:23,427 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:23,428 INFO sqlalchemy.engine.Engine [cached since 3.24s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:23,429 INFO sqlalchemy.engine.Engine 
+DROP TABLE credential
+2025-07-18 12:35:23,429 INFO sqlalchemy.engine.Engine [no key 0.00017s] ()
+2025-07-18 12:35:23,436 INFO sqlalchemy.engine.Engine 
+DROP TABLE company
+2025-07-18 12:35:23,436 INFO sqlalchemy.engine.Engine [no key 0.00017s] ()
+2025-07-18 12:35:23,440 INFO sqlalchemy.engine.Engine COMMIT
+---------------------------- Captured log teardown -----------------------------
+INFO     sqlalchemy.engine.Engine:base.py:1125 ROLLBACK
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 3.232s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 3.24s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+DROP TABLE credential
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00017s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+DROP TABLE company
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00017s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1142 COMMIT
+________________ test_verify_credential_issuer_not_found_in_db _________________
+
+client = <httpx.AsyncClient object at 0x79e3a1748820>
+
+    @pytest.mark.asyncio
+    async def test_verify_credential_issuer_not_found_in_db(client: AsyncClient):
+        """
+        Prueba que una credencial no es verificada si la empresa emisora no está en la DB.
+        """
+        non_existent_issuer_id = uuid.uuid4()
+        private_key_obj, _ = generate_rsa_key_pair() # Clave privada para firmar el JWT
+    
+        # Crear un JWT con un issuer_id que no existe en la DB
+        payload = {
+            "iss": str(non_existent_issuer_id),
+            "sub": "nonexistent_issuer@example.com",
+            "exp": datetime.now(timezone.utc) + timedelta(minutes=5)
+        }
+        signed_jwt = jwt.encode(payload, private_key_obj, algorithm="RS256")
+    
+        verify_data = {"signed_jwt": signed_jwt}
+        # MODIFICADO: Cambiar la ruta para que coincida con el prefijo en main.py
+        response = await client.post("/api/v1/credentials/verify-credential", json=verify_data)
+>       assert response.status_code == 200 # Esperamos 200 con is_valid=False
+E       assert 404 == 200
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+test/test_api.py:315: AssertionError
+---------------------------- Captured stdout setup -----------------------------
+[TEST DB] Limpiando y configurando DB para test...
+2025-07-18 12:35:23,489 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:23,489 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:23,489 INFO sqlalchemy.engine.Engine [cached since 3.302s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:23,497 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:23,497 INFO sqlalchemy.engine.Engine [cached since 3.31s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:23,499 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:23,499 INFO sqlalchemy.engine.Engine [cached since 3.311s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:23,500 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:23,500 INFO sqlalchemy.engine.Engine [cached since 3.313s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:23,502 INFO sqlalchemy.engine.Engine 
+CREATE TABLE company (
+	company_name VARCHAR(100) NOT NULL, 
+	public_key VARCHAR(4096) NOT NULL, 
+	contact_email VARCHAR(100) NOT NULL, 
+	id UUID NOT NULL, 
+	registered_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	PRIMARY KEY (id)
+)
+
+
+2025-07-18 12:35:23,503 INFO sqlalchemy.engine.Engine [no key 0.00025s] ()
+2025-07-18 12:35:23,512 INFO sqlalchemy.engine.Engine CREATE INDEX ix_company_id ON company (id)
+2025-07-18 12:35:23,512 INFO sqlalchemy.engine.Engine [no key 0.00021s] ()
+2025-07-18 12:35:23,515 INFO sqlalchemy.engine.Engine CREATE UNIQUE INDEX ix_company_company_name ON company (company_name)
+2025-07-18 12:35:23,515 INFO sqlalchemy.engine.Engine [no key 0.00018s] ()
+2025-07-18 12:35:23,519 INFO sqlalchemy.engine.Engine 
+CREATE TABLE credential (
+	issuer_id UUID NOT NULL, 
+	credential_type VARCHAR(50) NOT NULL, 
+	credential_data JSONB, 
+	issued_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	expiration_date TIMESTAMP WITHOUT TIME ZONE, 
+	jwt_hash VARCHAR(256) NOT NULL, 
+	id UUID NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(issuer_id) REFERENCES company (id)
+)
+
+
+2025-07-18 12:35:23,519 INFO sqlalchemy.engine.Engine [no key 0.00018s] ()
+2025-07-18 12:35:23,527 INFO sqlalchemy.engine.Engine CREATE INDEX ix_credential_issuer_id ON credential (issuer_id)
+2025-07-18 12:35:23,527 INFO sqlalchemy.engine.Engine [no key 0.00018s] ()
+2025-07-18 12:35:23,530 INFO sqlalchemy.engine.Engine CREATE INDEX ix_credential_id ON credential (id)
+2025-07-18 12:35:23,531 INFO sqlalchemy.engine.Engine [no key 0.00024s] ()
+2025-07-18 12:35:23,534 INFO sqlalchemy.engine.Engine CREATE UNIQUE INDEX ix_credential_jwt_hash ON credential (jwt_hash)
+2025-07-18 12:35:23,534 INFO sqlalchemy.engine.Engine [no key 0.00018s] ()
+2025-07-18 12:35:23,537 INFO sqlalchemy.engine.Engine COMMIT
+------------------------------ Captured log setup ------------------------------
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 3.302s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 3.31s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 3.311s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 3.313s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+CREATE TABLE company (
+	company_name VARCHAR(100) NOT NULL, 
+	public_key VARCHAR(4096) NOT NULL, 
+	contact_email VARCHAR(100) NOT NULL, 
+	id UUID NOT NULL, 
+	registered_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	PRIMARY KEY (id)
+)
+
+
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00025s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE INDEX ix_company_id ON company (id)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00021s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE UNIQUE INDEX ix_company_company_name ON company (company_name)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00018s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+CREATE TABLE credential (
+	issuer_id UUID NOT NULL, 
+	credential_type VARCHAR(50) NOT NULL, 
+	credential_data JSONB, 
+	issued_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	expiration_date TIMESTAMP WITHOUT TIME ZONE, 
+	jwt_hash VARCHAR(256) NOT NULL, 
+	id UUID NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(issuer_id) REFERENCES company (id)
+)
+
+
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00018s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE INDEX ix_credential_issuer_id ON credential (issuer_id)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00018s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE INDEX ix_credential_id ON credential (id)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00024s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE UNIQUE INDEX ix_credential_jwt_hash ON credential (jwt_hash)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00018s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1142 COMMIT
+--------------------------- Captured stdout teardown ---------------------------
+[TEST DB] Eliminando tablas...
+2025-07-18 12:35:23,654 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:23,654 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:23,655 INFO sqlalchemy.engine.Engine [cached since 3.467s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:23,663 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:23,663 INFO sqlalchemy.engine.Engine [cached since 3.475s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:23,664 INFO sqlalchemy.engine.Engine 
+DROP TABLE credential
+2025-07-18 12:35:23,664 INFO sqlalchemy.engine.Engine [no key 0.00020s] ()
+2025-07-18 12:35:23,672 INFO sqlalchemy.engine.Engine 
+DROP TABLE company
+2025-07-18 12:35:23,672 INFO sqlalchemy.engine.Engine [no key 0.00017s] ()
+2025-07-18 12:35:23,676 INFO sqlalchemy.engine.Engine COMMIT
+---------------------------- Captured log teardown -----------------------------
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 3.467s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 3.475s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+DROP TABLE credential
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00020s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+DROP TABLE company
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00017s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1142 COMMIT
+__________________ test_verify_credential_invalid_jwt_format ___________________
+
+client = <httpx.AsyncClient object at 0x79e3a19b2c50>
+
+    @pytest.mark.asyncio
+    async def test_verify_credential_invalid_jwt_format(client: AsyncClient):
+        """
+        Prueba que la verificación falla si el formato del JWT es inválido.
+        """
+        invalid_jwt = "this.is.not.a.valid.jwt"
+        verify_data = {"signed_jwt": invalid_jwt}
+        # MODIFICADO: Cambiar la ruta para que coincida con el prefijo en main.py
+        response = await client.post("/api/v1/credentials/verify-credential", json=verify_data)
+        # Esperamos 200 con is_valid=False o 422 si la validación de Pydantic falla antes.
+>       assert response.status_code == 200 or response.status_code == 422
+E       assert (404 == 200 or 404 == 422)
+E        +  where 404 = <Response [404 Not Found]>.status_code
+E        +  and   404 = <Response [404 Not Found]>.status_code
+
+test/test_api.py:331: AssertionError
+---------------------------- Captured stdout setup -----------------------------
+[TEST DB] Limpiando y configurando DB para test...
+2025-07-18 12:35:23,726 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:23,727 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:23,727 INFO sqlalchemy.engine.Engine [cached since 3.54s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:23,735 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:23,735 INFO sqlalchemy.engine.Engine [cached since 3.548s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:23,737 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:23,737 INFO sqlalchemy.engine.Engine [cached since 3.549s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:23,738 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:23,738 INFO sqlalchemy.engine.Engine [cached since 3.551s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:23,740 INFO sqlalchemy.engine.Engine 
+CREATE TABLE company (
+	company_name VARCHAR(100) NOT NULL, 
+	public_key VARCHAR(4096) NOT NULL, 
+	contact_email VARCHAR(100) NOT NULL, 
+	id UUID NOT NULL, 
+	registered_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	PRIMARY KEY (id)
+)
+
+
+2025-07-18 12:35:23,740 INFO sqlalchemy.engine.Engine [no key 0.00020s] ()
+2025-07-18 12:35:23,750 INFO sqlalchemy.engine.Engine CREATE INDEX ix_company_id ON company (id)
+2025-07-18 12:35:23,750 INFO sqlalchemy.engine.Engine [no key 0.00046s] ()
+2025-07-18 12:35:23,754 INFO sqlalchemy.engine.Engine CREATE UNIQUE INDEX ix_company_company_name ON company (company_name)
+2025-07-18 12:35:23,754 INFO sqlalchemy.engine.Engine [no key 0.00031s] ()
+2025-07-18 12:35:23,758 INFO sqlalchemy.engine.Engine 
+CREATE TABLE credential (
+	issuer_id UUID NOT NULL, 
+	credential_type VARCHAR(50) NOT NULL, 
+	credential_data JSONB, 
+	issued_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	expiration_date TIMESTAMP WITHOUT TIME ZONE, 
+	jwt_hash VARCHAR(256) NOT NULL, 
+	id UUID NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(issuer_id) REFERENCES company (id)
+)
+
+
+2025-07-18 12:35:23,759 INFO sqlalchemy.engine.Engine [no key 0.00024s] ()
+2025-07-18 12:35:23,767 INFO sqlalchemy.engine.Engine CREATE INDEX ix_credential_issuer_id ON credential (issuer_id)
+2025-07-18 12:35:23,767 INFO sqlalchemy.engine.Engine [no key 0.00028s] ()
+2025-07-18 12:35:23,771 INFO sqlalchemy.engine.Engine CREATE INDEX ix_credential_id ON credential (id)
+2025-07-18 12:35:23,771 INFO sqlalchemy.engine.Engine [no key 0.00029s] ()
+2025-07-18 12:35:23,776 INFO sqlalchemy.engine.Engine CREATE UNIQUE INDEX ix_credential_jwt_hash ON credential (jwt_hash)
+2025-07-18 12:35:23,776 INFO sqlalchemy.engine.Engine [no key 0.00038s] ()
+2025-07-18 12:35:23,780 INFO sqlalchemy.engine.Engine COMMIT
+------------------------------ Captured log setup ------------------------------
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 3.54s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 3.548s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 3.549s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 3.551s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+CREATE TABLE company (
+	company_name VARCHAR(100) NOT NULL, 
+	public_key VARCHAR(4096) NOT NULL, 
+	contact_email VARCHAR(100) NOT NULL, 
+	id UUID NOT NULL, 
+	registered_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	PRIMARY KEY (id)
+)
+
+
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00020s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE INDEX ix_company_id ON company (id)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00046s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE UNIQUE INDEX ix_company_company_name ON company (company_name)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00031s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+CREATE TABLE credential (
+	issuer_id UUID NOT NULL, 
+	credential_type VARCHAR(50) NOT NULL, 
+	credential_data JSONB, 
+	issued_at TIMESTAMP WITHOUT TIME ZONE NOT NULL, 
+	expiration_date TIMESTAMP WITHOUT TIME ZONE, 
+	jwt_hash VARCHAR(256) NOT NULL, 
+	id UUID NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(issuer_id) REFERENCES company (id)
+)
+
+
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00024s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE INDEX ix_credential_issuer_id ON credential (issuer_id)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00028s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE INDEX ix_credential_id ON credential (id)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00029s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 CREATE UNIQUE INDEX ix_credential_jwt_hash ON credential (jwt_hash)
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00038s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1142 COMMIT
+--------------------------- Captured stdout teardown ---------------------------
+[TEST DB] Eliminando tablas...
+2025-07-18 12:35:23,839 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-07-18 12:35:23,840 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:23,840 INFO sqlalchemy.engine.Engine [cached since 3.653s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:23,849 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2025-07-18 12:35:23,849 INFO sqlalchemy.engine.Engine [cached since 3.662s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2025-07-18 12:35:23,851 INFO sqlalchemy.engine.Engine 
+DROP TABLE credential
+2025-07-18 12:35:23,851 INFO sqlalchemy.engine.Engine [no key 0.00031s] ()
+2025-07-18 12:35:23,859 INFO sqlalchemy.engine.Engine 
+DROP TABLE company
+2025-07-18 12:35:23,859 INFO sqlalchemy.engine.Engine [no key 0.00032s] ()
+2025-07-18 12:35:23,864 INFO sqlalchemy.engine.Engine COMMIT
+---------------------------- Captured log teardown -----------------------------
+INFO     sqlalchemy.engine.Engine:base.py:1099 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 3.653s ago] ('company', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1904 [cached since 3.662s ago] ('credential', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+DROP TABLE credential
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00031s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1899 
+DROP TABLE company
+INFO     sqlalchemy.engine.Engine:base.py:1904 [no key 0.00032s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1142 COMMIT
+=============================== warnings summary ===============================
+main.py:26
+  /home/jomasanz/Descargas/VCPymes-API-main/main.py:26: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+../../.local/lib/python3.10/site-packages/fastapi/applications.py:4495
+  /home/jomasanz/.local/lib/python3.10/site-packages/fastapi/applications.py:4495: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)
+
+test/test_api.py::test_register_company_success
+test/test_api.py::test_register_company_duplicate
+test/test_api.py::test_register_company_duplicate
+test/test_api.py::test_issue_credential_success
+test/test_api.py::test_issue_credential_duplicate_jwt
+test/test_api.py::test_verify_credential_success
+test/test_api.py::test_verify_credential_invalid_signature
+test/test_api.py::test_verify_credential_expired
+  /home/jomasanz/.local/lib/python3.10/site-packages/fastapi/routing.py:145: DeprecationWarning: 
+          🚨 `obj.from_orm(data)` was deprecated in SQLModel 0.0.14, you should
+          instead use `obj.model_validate(data)`.
+          
+    value, errors_ = field.validate(response_content, {}, loc=("response",))
+
+test/test_api.py::test_register_company_success
+test/test_api.py::test_register_company_duplicate
+test/test_api.py::test_register_company_duplicate
+test/test_api.py::test_issue_credential_success
+test/test_api.py::test_issue_credential_duplicate_jwt
+test/test_api.py::test_verify_credential_success
+test/test_api.py::test_verify_credential_invalid_signature
+test/test_api.py::test_verify_credential_expired
+  /home/jomasanz/.local/lib/python3.10/site-packages/fastapi/_compat.py:441: DeprecationWarning: 
+          🚨 `obj.dict()` was deprecated in SQLModel 0.0.14, you should
+          instead use `obj.model_dump()`.
+          
+    return model.dict(**kwargs)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED test/test_api.py::test_register_company_duplicate - ValueError: not en...
+FAILED test/test_api.py::test_issue_credential_success - assert 404 == 201
+FAILED test/test_api.py::test_issue_credential_company_not_found - AssertionE...
+FAILED test/test_api.py::test_issue_credential_duplicate_jwt - assert 404 == 201
+FAILED test/test_api.py::test_verify_credential_success - assert 404 == 201
+FAILED test/test_api.py::test_verify_credential_invalid_signature - Attribute...
+FAILED test/test_api.py::test_verify_credential_expired - assert 404 == 200
+FAILED test/test_api.py::test_verify_credential_issuer_not_found_in_db - asse...
+FAILED test/test_api.py::test_verify_credential_invalid_jwt_format - assert (...
+=================== 9 failed, 3 passed, 18 warnings in 4.07s ===================
