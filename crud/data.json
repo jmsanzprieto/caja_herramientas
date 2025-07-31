@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Producto A",
+    "description": "Descripción del Producto A",
+    "price": 10.99,
+    "id": "a1b2c3d4"
+  },
+  {
+    "name": "Producto B",
+    "description": "Descripción del Producto B",
+    "price": 25.5,
+    "id": "e5f6g7h8"
+  },
+  {
+    "name": "string111111",
+    "description": "strin11111",
+    "price": 1000.0,
+    "id": "2aa1d5c9-aa2f-4666-8b51-dcd0611c13a7"
+  },
+  {
+    "name": "string2222222",
+    "description": "string22222222",
+    "price": 122222222.0,
+    "id": "229cbf45-b652-4474-af05-3976f36d8a95"
+  }
+]
