@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 FastAPI Toolbox: Tu Kit de Desarrollo Esencial</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+        .navbar {
+            background-color: #343a40 !important; /* Dark background for navbar */
+        }
+        .navbar-brand {
+            font-weight: 700;
+            color: #ffffff !important;
+        }
+        .header-section {
+            background: linear-gradient(to right, #007bff, #0056b3); /* Blue gradient */
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .header-section h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .header-section p {
+            font-size: 1.25rem;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%; /* Asegura que todas las tarjetas tengan la misma altura si están en una fila */
+        }
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        }
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            font-weight: 600;
+            font-size: 1.15rem;
+            padding: 1rem 1.25rem;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+        }
+        .card-body {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+        }
+        .card-text {
+            flex-grow: 1; /* Permite que el texto ocupe el espacio disponible */
+            margin-bottom: 1rem;
+        }
+        .card-footer {
+            background-color: #fff;
+            border-top: none;
+            padding: 1rem 1.5rem;
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+        .about-me-section {
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            margin-top: 60px;
+            margin-bottom: 60px;
+        }
+        .about-me-section h2 {
+            color: #0056b3;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        .about-me-section p {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+        .about-me-section ul {
+            list-style: none;
+            padding: 0;
+        }
+        .about-me-section ul li {
+            margin-bottom: 10px;
+            font-size: 1.05rem;
+        }
+        .about-me-section ul li i {
+            color: #007bff;
+            margin-right: 10px;
+        }
+        footer {
+            background-color: #343a40;
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+            margin-top: 60px;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
+        footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">🚀 FastAPI Toolbox</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#proyectos">Proyectos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#sobre-mi">Sobre Mí</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://github.com/jmsanzprieto/caja_herramientas" target="_blank">GitHub Repo</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header class="header-section">
+        <div class="container">
+            <h1>Bienvenido a tu Caja de Herramientas FastAPI</h1>
+            <p class="lead">Una colección de microproyectos esenciales para construir APIs robustas y eficientes con FastAPI. Cada ejemplo es modular, claro y listo para ser tu punto de partida.</p>
+        </div>
+    </header>
+
+    <section id="proyectos" class="container my-5">
+        <h2 class="text-center mb-5 fw-bold" style="color: #0056b3;">Explora los Microproyectos</h2>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-lock-fill me-2"></i> 1. Autenticación y Autorización (Login Básico)
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Implementa un sistema básico de inicio de sesión con JWT. Ideal para entender cómo proteger tus *endpoints* y gestionar el acceso de usuarios.</p>
+                        <div class="card-footer text-center">
+                            <a href="https://github.com/jmsanzprieto/caja_herramientas/blob/main/login/README.md" class="btn btn-primary btn-sm" target="_blank">Ver Detalles</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-gear-fill me-2"></i> 2. CRUD (Crear, Leer, Actualizar, Borrar)
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Un ejemplo fundamental de cómo construir una API RESTful completa con las operaciones básicas para un recurso, utilizando SQLAlchemy.</p>
+                        <div class="card-footer text-center">
+                            <a href="https://github.com/jmsanzprieto/caja_herramientas/blob/main/crud/README.md" class="btn btn-primary btn-sm" target="_blank">Ver Detalles</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-folder-fill me-2"></i> 3. Gestión de Archivos (Subida y Descarga)
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Aprende a manejar archivos: subida de archivos únicos y múltiples, y cómo servirlos para su descarga por parte del usuario.</p>
+                        <div class="card-footer text-center">
+                            <a href="https://github.com/jmsanzprieto/caja_herramientas/blob/main/carga_ficheros/README.md" class="btn btn-primary btn-sm" target="_blank">Ver Detalles</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-funnel-fill me-2"></i> 4. Paginación y Filtrado
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Esencial para manejar grandes conjuntos de datos de manera eficiente. Implementa paginación (`skip`, `limit`) y filtrado por múltiples criterios.</p>
+                        <div class="card-footer text-center">
+                            <a href="https://github.com/jmsanzprieto/caja_herramientas/blob/main/paginacion_filtrado/README.md" class="btn btn-primary btn-sm" target="_blank">Ver Detalles</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> 5. Manejo de Errores Personalizado
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Mejora la experiencia del desarrollador con respuestas de error informativas. Personaliza excepciones HTTP estándar y crea tus propias excepciones de negocio.</p>
+                        <div class="card-footer text-center">
+                            <a href="https://github.com/jmsanzprieto/caja_herramientas/blob/main/gestion_errores/README.md" class="btn btn-primary btn-sm" target="_blank">Ver Detalles</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-chat-dots-fill me-2"></i> 6. WebSockets (Chat y Notificaciones)
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Para aplicaciones en tiempo real, como chats o notificaciones. Demuestra la comunicación bidireccional entre cliente y servidor.</p>
+                        <div class="card-footer text-center">
+                            <a href="https://github.com/jmsanzprieto/caja_herramientas/blob/main/websockets/README.md" class="btn btn-primary btn-sm" target="_blank">Ver Detalles</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-box-seam-fill me-2"></i> 7. Dockerización (con SQLite)
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Indispensable para el despliegue y la consistencia del entorno. Empaqueta tu aplicación FastAPI y su base de datos SQLite en contenedores Docker.</p>
+                        <div class="card-footer text-center">
+                            <a href="https://github.com/jmsanzprieto/caja_herramientas/blob/main/dockerizacion/README.md" class="btn btn-primary btn-sm" target="_blank">Ver Detalles</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="sobre-mi" class="container about-me-section">
+        <h2 class="text-center mb-4">Sobre Mí</h2>
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-justify">
+                <p>¡Hola! Soy Jose manuel, desarrollador de software con un fuerte enfoque en la creación de <strong>APIs robustas y eficientes</strong> utilizando tecnologías como <strong>FastAPI, Python y PHP</strong>.</p>
+                <p>Mi experiencia abarca el diseño de arquitecturas escalables, la implementación de patrones de diseño limpios y el desarrollo de soluciones de backend que impulsan aplicaciones dinámicas.</p>
+                <p>Esta "Caja de Herramientas de FastAPI" es el reflejo de mi compromiso con la comunidad de desarrolladores. Mi objetivo es compartir conocimientos y proveer recursos prácticos que simplifiquen el aprendizaje y la implementación de funcionalidades clave en FastAPI.</p>
+                <h4 class="mt-4 mb-3" style="color: #007bff;">Mis Habilidades e Intereses:</h4>
+                <ul class="list-unstyled d-flex flex-wrap justify-content-justify">
+                    <li class="p-2"><i class="bi bi-check-circle-fill"></i> Desarrollo Backend (Python, FastAPI, Django)</li>
+                    <li class="p-2"><i class="bi bi-check-circle-fill"></i> Diseño y Optimización de APIs RESTful</li>
+                    <li class="p-2"><i class="bi bi-check-circle-fill"></i> Bases de Datos (SQLAlchemy, PostgreSQL, MySQL, SQLite)</li>
+                    <li class="p-2"><i class="bi bi-check-circle-fill"></i> Contenerización (Docker, Docker Compose)</li>
+                    <li class="p-2"><i class="bi bi-check-circle-fill"></i> Pruebas Unitarias e Integración</li>
+                    <li class="p-2"><i class="bi bi-check-circle-fill"></i> Metodologías Ágiles</li>
+                    <li class="p-2"><i class="bi bi-check-circle-fill"></i> PHP</li>
+                </ul>
+<p class="mt-6">¡No dudes en explorar mis otros proyectos en <a href="https://github.com/jmsanzprieto" target="_blank">GitHub</a> o enviarme un correo a <a href="mailto:contacto@josemanuelsanz.es">contacto@josemanuelsanz.es</a></p>            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 FastAPI Toolbox. Creado por <a href="https://github.com/jmsanzprieto" target="_blank">jmsanzprieto</a>.</p>
+            <p>Este proyecto es de código abierto y está disponible en <a href="https://github.com/jmsanzprieto/caja_herramientas" target="_blank">GitHub</a>.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>
