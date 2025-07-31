@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  app:
+    build: . # Construye la imagen Docker desde el Dockerfile en el directorio actual
+    ports:
+      - "8000:8000" # Mapea el puerto 8000 del host al puerto 8000 del contenedor
+    volumes:
+      # Mapea el directorio actual (que contendrá sql_app.db) dentro del contenedor
+      # Esto asegura que la base de datos persista entre reinicios del contenedor
+      - .:/app
+    environment:
+      # Pasa las variables de entorno de .env al contenedor
+      # Esto permite que la app lea DATABASE_URL
+      - DATABASE_URL=${DATABASE_URL}
